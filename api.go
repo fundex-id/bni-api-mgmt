@@ -1,7 +1,9 @@
 package bni
 
 import (
-	"fmt"
+	"bytes"
+	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -9,34 +11,52 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fundex-id/bni-api-mgmt/dto"
+	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/juju/errors"
+	// "github.com/sirupsen/logrus"
 )
 
 type Api struct {
 	config     Config
 	httpClient *http.Client
+	// logger     *logrus.Logger
 }
 
 func NewApi(config Config) *Api {
+
 	httpClient := &http.Client{
 		Timeout: time.Second * 10,
 	}
 
-	api := Api{config: config, httpClient: httpClient}
+	api := Api{config: config,
+		httpClient: httpClient,
+		// logger:     logrus.New(),
+	}
 
 	return &api
 }
 
-func (api *Api) postGetToken() (*dto.GetTokenResponse, error) {
+// func (api *Api) setLogger(logger *logrus.Logger) {
+// 	api.logger = logger
+// }
+
+func (api *Api) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
+	// apiLog := api.logger.WithFields(logger.ExtractFields(ctx))
+	apiLog := logger.Logger(ctx)
+
+	apiLog.Info("HELLO WORLD ABC")
+	apiLog.Info(spew.Sdump(api.config))
+
 	url, err := joinUrl(api.config.BNIServer, api.config.AuthPath)
 	if err != nil {
 		return nil, err
 	}
 
-	body := strings.NewReader("grant_type=client_credentials")
+	bodyReq := strings.NewReader("grant_type=client_credentials")
 
-	req, err := http.NewRequest(http.MethodPost, url, body)
+	req, err := http.NewRequest(http.MethodPost, url, bodyReq)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -44,17 +64,36 @@ func (api *Api) postGetToken() (*dto.GetTokenResponse, error) {
 	req.Header.Add("content-type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(api.config.Username, api.config.Password)
 
-	res, err := api.httpClient.Do(req)
+	resp, err := api.httpClient.Do(req)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
-	defer res.Body.Close()
+	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
+	bodyRespBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
 
-	fmt.Println(res)
-	fmt.Println(string(body))
+	apiLog.Info(resp.StatusCode)
+	apiLog.Info(string(bodyRespBytes))
 
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
+
+	// fmt.Println(resp)
+	// fmt.Println(string(bodyRespBytes))
+
+	// Step 3
+	// oR := new(jsonResponse)
+	// json.NewDecoder(resp.Body).Decode(oR)
+
+	var jsonResp dto.GetTokenResponse
+	err = json.NewDecoder(resp.Body).Decode(&jsonResp)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	return &jsonResp, nil
 }
 
 // func (api *Api) sendInHouseTransferRequest(accessToken string, inHouseTransferRequet InHouseTransferRequest) error {

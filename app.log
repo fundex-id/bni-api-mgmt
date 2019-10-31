@@ -1,0 +1,7 @@
+{"@time":"2019-10-31T10:33:05+07:00","level":"info","msg":"HELLO WORLD","reqId":"083eb2a1-cd14-4204-8418-f009545565ba"}
+{"@time":"2019-10-31T10:34:36+07:00","level":"info","msg":"HELLO WORLD","reqId":"bcfb6d7e-24fb-4224-9d41-3fa86936ef0f"}
+{"@time":"2019-10-31T10:37:11+07:00","level":"info","msg":"HELLO WORLD","reqId":"518c5a83-15bb-4e65-9b58-ec5cc0b67d27"}
+{"@time":"2019-10-31T10:38:42+07:00","level":"info","msg":"HELLO WORLD","reqId":"e0d7e150-6e9a-42de-aabe-88820e41b262"}
+{"@time":"2019-10-31T10:39:41+07:00","level":"info","msg":"HELLO WORLD ABC","reqId":"f5848f60-bfc9-4214-a700-a1f57acea713"}
+{"@time":"2019-10-31T11:16:05+07:00","level":"info","msg":"HELLO WORLD ABC","reqId":"064133fe-7a66-4af7-9a42-becffde455fe"}
+{"@time":"2019-10-31T11:16:05+07:00","level":"info","msg":"(bni.Config) {\n Username: (string) \"\",\n Password: (string) \"\",\n ClientID: (string) \"\",\n BNIServer: (string) (len=20) \"https://bni.com:8181\",\n AuthPath: (string) (len=6) \"/oauth\",\n InHouseInquiryPath: (string) \"\",\n InterBankInquiryPath: (string) \"\",\n InHouseTransferPath: (string) \"\",\n InterBankTransferPath: (string) \"\",\n LogPath: (string) \"\"\n}\n","reqId":"064133fe-7a66-4af7-9a42-becffde455fe"}
