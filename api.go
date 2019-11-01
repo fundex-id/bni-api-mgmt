@@ -60,9 +60,9 @@ func newApi(config Config) *Api {
 }
 
 func (api *Api) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
-	apiLog := logger.Logger(ctx)
+	funcLog := logger.Logger(ctx)
 	log.Print("HELLO WORLD dari LOG")
-	apiLog.Info("HELLO WORLD dari APILOG")
+	funcLog.Info("HELLO WORLD dari APILOG")
 
 	url, err := joinUrl(api.config.BNIServer, api.config.AuthPath)
 	if err != nil {
@@ -90,8 +90,8 @@ func (api *Api) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 		return nil, errors.Trace(err)
 	}
 
-	apiLog.Info(resp.StatusCode)
-	apiLog.Info(string(bodyRespBytes))
+	funcLog.Info(resp.StatusCode)
+	funcLog.Info(string(bodyRespBytes))
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
 
