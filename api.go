@@ -27,7 +27,7 @@ type Api struct {
 	httpClient *http.Client
 }
 
-func NewApi(config Config) *Api {
+func newApi(config Config) *Api {
 
 	httpClient := &http.Client{
 		Timeout: time.Second * 10,
