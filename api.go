@@ -7,13 +7,19 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strings"
 	"time"
 
+	"log"
+
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/juju/errors"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type Api struct {
@@ -31,11 +37,32 @@ func NewApi(config Config) *Api {
 		httpClient: httpClient,
 	}
 
+	logger.SetOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+
+		fileWriteSyncer := zapcore.AddSync(&lumberjack.Logger{
+			Filename: api.config.LogPath,
+			MaxSize:  500, // megabytes
+			// MaxBackups: 3,
+			// MaxAge:     28, // days
+		})
+		stdoutWriteSyncer := zapcore.AddSync(os.Stdout)
+
+		return zapcore.NewCore(
+			zapcore.NewJSONEncoder(logger.DefaultEncoderConfig),
+			zapcore.NewMultiWriteSyncer(fileWriteSyncer, stdoutWriteSyncer),
+			zap.InfoLevel,
+		)
+
+		// return core
+	}))
+
 	return &api
 }
 
 func (api *Api) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
 	apiLog := logger.Logger(ctx)
+	log.Print("HELLO WORLD dari LOG")
+	apiLog.Info("HELLO WORLD dari APILOG")
 
 	url, err := joinUrl(api.config.BNIServer, api.config.AuthPath)
 	if err != nil {

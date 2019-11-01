@@ -38,7 +38,11 @@ func Test_joinUrl(t *testing.T) {
 
 func TestApi_postGetToken(t *testing.T) {
 	api := &Api{
-		config:     Config{BNIServer: "https://bni.com:8181", AuthPath: "/oauth"},
+		config: Config{
+			BNIServer: "https://bni.com:8181",
+			AuthPath:  "/oauth",
+			LogPath:   "custom.log",
+		},
 		httpClient: http.DefaultClient,
 	}
 
