@@ -11,17 +11,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/juju/errors"
-	// "github.com/sirupsen/logrus"
 )
 
 type Api struct {
 	config     Config
 	httpClient *http.Client
-	// logger     *logrus.Logger
 }
 
 func NewApi(config Config) *Api {
@@ -32,22 +29,13 @@ func NewApi(config Config) *Api {
 
 	api := Api{config: config,
 		httpClient: httpClient,
-		// logger:     logrus.New(),
 	}
 
 	return &api
 }
 
-// func (api *Api) setLogger(logger *logrus.Logger) {
-// 	api.logger = logger
-// }
-
 func (api *Api) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
-	// apiLog := api.logger.WithFields(logger.ExtractFields(ctx))
 	apiLog := logger.Logger(ctx)
-
-	apiLog.Info("HELLO WORLD ABC")
-	apiLog.Info(spew.Sdump(api.config))
 
 	url, err := joinUrl(api.config.BNIServer, api.config.AuthPath)
 	if err != nil {

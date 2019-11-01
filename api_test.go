@@ -3,14 +3,12 @@ package bni
 import (
 	"context"
 	"net/http"
-	"os"
 	"testing"
 
 	ctxApp "github.com/fundex-id/bni-api-mgmt/context"
 	"github.com/juju/errors"
 	"github.com/pborman/uuid"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,29 +37,14 @@ func Test_joinUrl(t *testing.T) {
 }
 
 func TestApi_postGetToken(t *testing.T) {
-	logger := logrus.New()
-
-	logger.SetFormatter(&logrus.JSONFormatter{FieldMap: logrus.FieldMap{logrus.FieldKeyTime: "@time"}})
-
-	// You could set this to any `io.Writer` such as a file
-	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		t.Fatal(err)
-	}
-	logger.Out = file
-
-	// logger.WithContext()
-	// logger = logger.WithFields(logrus.Fields{"abc": "def"})
-
 	api := &Api{
 		config:     Config{BNIServer: "https://bni.com:8181", AuthPath: "/oauth"},
 		httpClient: http.DefaultClient,
-		// logger:     logger,
 	}
 
 	reqId := uuid.NewRandom()
 	ctx := ctxApp.WithReqId(context.Background(), reqId.String())
-	_, err = api.postGetToken(ctx)
+	_, err := api.postGetToken(ctx)
 	assert.Nil(t, err)
 
 	// t.Log(err)

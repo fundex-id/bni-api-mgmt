@@ -25,7 +25,7 @@ func init() {
 
 	newLogger, err := config.Build(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
 		w := zapcore.AddSync(&lumberjack.Logger{
-			Filename: "/var/log/myapp/foo.log",
+			Filename: "foo.log",
 			MaxSize:  500, // megabytes
 			// MaxBackups: 3,
 			// MaxAge:     28, // days
@@ -56,19 +56,3 @@ func Logger(ctx context.Context) *zap.SugaredLogger {
 	}
 	return newLogger
 }
-
-// func ExtractFields(ctx context.Context) logrus.Fields {
-
-// 	fields := logrus.Fields{}
-// 	if ctx != nil {
-
-// 		if ctxRqId, ok := ctx.Value(ctxApp.ReqIdKey).(string); ok {
-// 			fields[ctxApp.ReqIdKey] = ctxRqId
-// 		}
-// 		if ctxSessionId, ok := ctx.Value(ctxApp.SessIdKey).(string); ok {
-// 			fields[ctxApp.SessIdKey] = ctxSessionId
-// 		}
-// 	}
-
-// 	return fields
-// }
