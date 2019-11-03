@@ -22,18 +22,18 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-type Api struct {
+type API struct {
 	config     Config
 	httpClient *http.Client
 }
 
-func newApi(config Config) *Api {
+func newApi(config Config) *API {
 
 	httpClient := &http.Client{
 		Timeout: time.Second * 10,
 	}
 
-	api := Api{config: config,
+	api := API{config: config,
 		httpClient: httpClient,
 	}
 
@@ -59,7 +59,7 @@ func newApi(config Config) *Api {
 	return &api
 }
 
-func (api *Api) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
+func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
 	funcLog := logger.Logger(ctx)
 	log.Print("HELLO WORLD dari LOG")
 	funcLog.Info("HELLO WORLD dari APILOG")

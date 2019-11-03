@@ -37,7 +37,7 @@ func Test_joinUrl(t *testing.T) {
 }
 
 func TestApi_postGetToken(t *testing.T) {
-	api := &Api{
+	api := &API{
 		config: Config{
 			BNIServer: "https://bni.com:8181",
 			AuthPath:  "/oauth",
