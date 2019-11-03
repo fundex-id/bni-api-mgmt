@@ -11,4 +11,9 @@ type Config struct {
 	InHouseTransferPath   string
 	InterBankTransferPath string
 	LogPath               string
+	SignatureConfig
+}
+
+type SignatureConfig struct {
+	PrivateKeyPath string
 }
