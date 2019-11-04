@@ -2,14 +2,16 @@ package bni
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
-	ctxApp "github.com/fundex-id/bni-api-mgmt/context"
-	"github.com/juju/errors"
-	"github.com/pborman/uuid"
-
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	dummyBNIServer string = "https://dummy.com:8181"
 )
 
 func Test_joinUrl(t *testing.T) {
@@ -36,23 +38,23 @@ func Test_joinUrl(t *testing.T) {
 	}
 }
 
-func TestApi_postGetToken(t *testing.T) {
-	api := &API{
-		config: Config{
-			BNIServer: "https://bni.com:8181",
-			AuthPath:  "/oauth",
-			LogPath:   "custom.log",
-		},
-		httpClient: http.DefaultClient,
-	}
+func TestApi_postGetToken_it(t *testing.T) {
+	// api := &API{
+	// 	config: Config{
+	// 		BNIServer: "https://bni.com:8181",
+	// 		AuthPath:  "/oauth",
+	// 		LogPath:   "custom.log",
+	// 	},
+	// 	httpClient: http.DefaultClient,
+	// }
 
-	reqId := uuid.NewRandom()
-	ctx := ctxApp.WithReqId(context.Background(), reqId.String())
-	_, err := api.postGetToken(ctx)
-	assert.Nil(t, err)
+	// reqId := uuid.NewRandom()
+	// ctx := ctxApp.WithReqId(context.Background(), reqId.String())
+	// _, err := api.postGetToken(ctx)
+	// assert.Nil(t, err)
 
-	// t.Log(err)
-	t.Log(errors.ErrorStack(err))
+	// // t.Log(err)
+	// t.Log(errors.ErrorStack(err))
 
 	// type fields struct {
 	// 	config     Config
@@ -88,4 +90,69 @@ func TestApi_postGetToken(t *testing.T) {
 	// 		}
 	// 	})
 	// }
+
+	t.Run("good case", func(t *testing.T) {
+		givenConfig := Config{
+			BNIServer: dummyBNIServer,
+			AuthPath:  "/oauth",
+			Username:  "dummyusername",
+			Password:  "dummypassword",
+		}
+
+		t.Log("MASUK TEST")
+
+		testHandler := func(w http.ResponseWriter, req *http.Request) {
+			// url, err := joinUrl(givenConfig.BNIServer, givenConfig.AuthPath)
+			// assert.Nil(t, err)
+
+			assert.Equal(t, req.Method, http.MethodPost)
+			assert.Equal(t, req.URL.String(), givenConfig.AuthPath)
+
+			// t.Log("RECEIVED URL: ", req.URL)
+
+			assert.Equal(t, req.Header.Get("content-type"), "application/x-www-form-urlencoded")
+			assert.Equal(t, req.Header.Get("authorization"), "Basic "+basicAuth(givenConfig.Username, givenConfig.Password))
+
+			w.WriteHeader(http.StatusBadGateway)
+			t.Log("MASUK DUMMY SERVER")
+		}
+
+		testServer := httptest.NewServer(http.HandlerFunc(testHandler))
+		defer testServer.Close()
+
+		givenConfig.BNIServer = testServer.URL
+
+		api := newApi(givenConfig)
+		api.httpClient = testServer.Client()
+		t.Logf("SERV URL: %s", testServer.URL)
+
+		dtoResp, err := api.postGetToken(context.Background())
+		// if err != nil {
+		// 	t.Errorf("expecte nil, got: %+v", spew.Sdump(err))
+		// }
+		assertErrNil(t, err)
+		// assert.Nil(t, err)
+		assert.NotNil(t, dtoResp)
+		// testAssertNil(t, dtoResp)
+	})
+
+}
+
+func basicAuth(username, password string) string {
+	auth := username + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
+func assertErrNil(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Errorf("expect nil, but got: %+v", err)
+	}
+}
+
+func assertErrNotNil(t *testing.T, err error) {
+	t.Helper()
+	if err == nil {
+		t.Errorf("expect not nil, but got: %+v", err)
+	}
 }

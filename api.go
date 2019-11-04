@@ -71,6 +71,7 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 
 	bodyReq := strings.NewReader("grant_type=client_credentials")
 
+	log.Print("before newrequest")
 	req, err := http.NewRequest(http.MethodPost, url, bodyReq)
 	if err != nil {
 		return nil, errors.Trace(err)
@@ -79,12 +80,15 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 	req.Header.Add("content-type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(api.config.Username, api.config.Password)
 
+	log.Print("before httpClient.do")
 	resp, err := api.httpClient.Do(req)
 	if err != nil {
 		return nil, errors.Trace(err)
+		// return nil, errors.Annotate(err, "failed to req auth")
 	}
 	defer resp.Body.Close()
 
+	log.Print("before read body resp")
 	bodyRespBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Trace(err)
