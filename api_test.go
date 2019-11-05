@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/fundex-id/bni-api-mgmt/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -130,7 +131,7 @@ func TestApi_postGetToken_it(t *testing.T) {
 		// if err != nil {
 		// 	t.Errorf("expecte nil, got: %+v", spew.Sdump(err))
 		// }
-		assertErrNil(t, err)
+		util.AssertErrNil(t, err)
 		// assert.Nil(t, err)
 		assert.NotNil(t, dtoResp)
 		// testAssertNil(t, dtoResp)
@@ -141,18 +142,4 @@ func TestApi_postGetToken_it(t *testing.T) {
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
 	return base64.StdEncoding.EncodeToString([]byte(auth))
-}
-
-func assertErrNil(t *testing.T, err error) {
-	t.Helper()
-	if err != nil {
-		t.Errorf("expect nil, but got: %+v", err)
-	}
-}
-
-func assertErrNotNil(t *testing.T, err error) {
-	t.Helper()
-	if err == nil {
-		t.Errorf("expect not nil, but got: %+v", err)
-	}
 }
