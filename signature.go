@@ -22,7 +22,7 @@ func newSignature(config SignatureConfig) *Signature {
 	return &Signature{config: config}
 }
 
-func (s *Signature) sha256WithRsa(data string) (string, error) {
+func (s *Signature) sha256WithRSA(data string) (string, error) {
 
 	privateKey, err := loadPrivateKeyFromPEMFile(s.config.PrivateKeyPath)
 	if err != nil {
@@ -30,12 +30,15 @@ func (s *Signature) sha256WithRsa(data string) (string, error) {
 	}
 
 	h := sha256.New()
-	h.Write([]byte(data))
+	_, err = h.Write([]byte(data))
+	if err != nil {
+		return "", errors.Trace(err)
+	}
 	d := h.Sum(nil)
 
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, d)
 	if err != nil {
-		panic(err)
+		return "", errors.Trace(err)
 	}
 
 	logger.Infof("Signature in byte: %v\n\n", signature)
