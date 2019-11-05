@@ -34,11 +34,16 @@ func TestBNI_DoAuthentication(t *testing.T) {
 			assert.Equal(t, req.Header.Get("content-type"), "application/x-www-form-urlencoded")
 			assert.Equal(t, req.Header.Get("authorization"), "Basic "+basicAuth(givenConfig.Username, givenConfig.Password))
 
+			err := req.ParseForm()
+			util.AssertErrNil(t, err)
+
+			assert.Equal(t, req.Form.Get("grant_type"), "client_credentials")
+
 			var dtoResp dto.GetTokenResponse
 			getJSON("testdata/get_token_response.json", &dtoResp)
 
 			w.WriteHeader(http.StatusOK)
-			err := json.NewEncoder(w).Encode(dtoResp)
+			err = json.NewEncoder(w).Encode(dtoResp)
 			util.AssertErrNil(t, err)
 
 		}))
