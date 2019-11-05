@@ -1,7 +1,6 @@
 package bni
 
 import (
-	"encoding/base64"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,9 +28,4 @@ func Test_joinUrl(t *testing.T) {
 			assert.Equal(t, got, tt.want)
 		})
 	}
-}
-
-func basicAuth(username, password string) string {
-	auth := username + ":" + password
-	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
