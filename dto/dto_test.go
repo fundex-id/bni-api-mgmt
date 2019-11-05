@@ -13,7 +13,7 @@ import (
 func TestGetCommonResponse(t *testing.T) {
 	t.Run("get_balance_response.json", func(t *testing.T) {
 
-		file, err := os.Open("./testdata/get_balance_response.json")
+		file, err := os.Open("../testdata/get_balance_response.json")
 		defer file.Close()
 
 		if err != nil {
