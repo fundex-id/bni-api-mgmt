@@ -57,6 +57,32 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		}
 
 	})
+
+	t.Run("bad auth", func(t *testing.T) {
+		givenConfig := Config{
+			AuthPath: "/oauth",
+			Username: "dummyusername",
+			Password: "dummypassword",
+		}
+
+		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			assert.Equal(t, req.Method, http.MethodPost)
+			assert.Equal(t, req.URL.String(), givenConfig.AuthPath)
+
+			w.WriteHeader(http.StatusUnauthorized)
+		}))
+		defer testServer.Close()
+
+		givenConfig.BNIServer = testServer.URL
+
+		bni := New(givenConfig)
+		bni.api.httpClient = testServer.Client()
+
+		ctx := bniCtx.WithReqId(context.Background(), uuid.NewRandom().String())
+		dtoResp, err := bni.DoAuthentication(ctx)
+		util.AssertErrNotNil(t, err)
+		assert.Nil(t, dtoResp)
+	})
 }
 
 func basicAuth(username, password string) string {
