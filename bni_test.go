@@ -28,16 +28,16 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		}
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			assert.Equal(t, req.Method, http.MethodPost)
-			assert.Equal(t, req.URL.String(), givenConfig.AuthPath)
+			assert.Equal(t, http.MethodPost, req.Method)
+			assert.Equal(t, givenConfig.AuthPath, req.URL.String())
 
-			assert.Equal(t, req.Header.Get("content-type"), "application/x-www-form-urlencoded")
-			assert.Equal(t, req.Header.Get("authorization"), "Basic "+basicAuth(givenConfig.Username, givenConfig.Password))
+			assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("content-type"))
+			assert.Equal(t, "Basic "+basicAuth(givenConfig.Username, givenConfig.Password), req.Header.Get("authorization"))
 
 			err := req.ParseForm()
 			util.AssertErrNil(t, err)
 
-			assert.Equal(t, req.Form.Get("grant_type"), "client_credentials")
+			assert.Equal(t, "client_credentials", req.Form.Get("grant_type"))
 
 			var dtoResp dto.GetTokenResponse
 			getJSON("testdata/get_token_response.json", &dtoResp)
@@ -71,8 +71,8 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		}
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			assert.Equal(t, req.Method, http.MethodPost)
-			assert.Equal(t, req.URL.String(), givenConfig.AuthPath)
+			assert.Equal(t, http.MethodPost, req.Method)
+			assert.Equal(t, givenConfig.AuthPath, req.URL.String())
 
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
