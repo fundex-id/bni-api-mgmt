@@ -1,0 +1,5 @@
+{
+    "access_token": "x3LyfeWKbeaARhd2PfU4F4OeNi43CrDFdi6XnzScKIuk5VmvFiq0B2", "token_type": "Bearer",
+    "expires_in": 3599,
+    "scope": "resource.WRITE resource.READ"
+}
