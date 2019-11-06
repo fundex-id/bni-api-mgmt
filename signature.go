@@ -15,7 +15,8 @@ import (
 )
 
 type Signature struct {
-	config SignatureConfig
+	config     SignatureConfig
+	privateKey *rsa.PrivateKey
 }
 
 func newSignature(config SignatureConfig) *Signature {
@@ -24,19 +25,22 @@ func newSignature(config SignatureConfig) *Signature {
 
 func (s *Signature) sha256WithRSA(data string) (string, error) {
 
-	privateKey, err := loadPrivateKeyFromPEMFile(s.config.PrivateKeyPath)
-	if err != nil {
-		return "", errors.Trace(err)
+	if s.privateKey == nil {
+		privateKey, err := loadPrivateKeyFromPEMFile(s.config.PrivateKeyPath)
+		if err != nil {
+			return "", errors.Trace(err)
+		}
+		s.privateKey = privateKey
 	}
 
 	h := sha256.New()
-	_, err = h.Write([]byte(data))
+	_, err := h.Write([]byte(data))
 	if err != nil {
 		return "", errors.Trace(err)
 	}
 	d := h.Sum(nil)
 
-	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, d)
+	signature, err := rsa.SignPKCS1v15(rand.Reader, s.privateKey, crypto.SHA256, d)
 	if err != nil {
 		return "", errors.Trace(err)
 	}
