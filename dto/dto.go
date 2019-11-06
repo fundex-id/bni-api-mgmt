@@ -2,16 +2,11 @@ package dto
 
 import "errors"
 
-type Session struct {
-	ID string `json:"session_id,omitempty"`
-}
-
 type GetTokenResponse struct {
 	AccessToken string `json:"access_token,omitempty"`
 	TokenType   string `json:"token_type,omitempty"`
 	ExpiredIn   int64  `json:"expired_in,omitempty"`
 	Scope       string `json:"scope,omitempty"`
-	Session
 }
 
 type ApiResponse struct {
