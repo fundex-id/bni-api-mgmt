@@ -1,6 +1,11 @@
 package dto
 
-type BaseRequest struct {
-	ClientID  string
-	Signature string
+type CommonRequest struct {
+	ClientID  string `json:"clientId,omitempty"`
+	Signature string `json:"signature,omitempty"`
+}
+
+type GetBalanceRequest struct {
+	CommonRequest
+	AccountNo string `json:"accountNo,omitempty"`
 }

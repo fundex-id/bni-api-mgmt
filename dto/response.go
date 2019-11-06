@@ -45,12 +45,8 @@ type BadRespGeneralErrorResponse struct {
 
 // === COMMON resp ===
 
-type ClientID struct {
-	ClientID string `json:"clientId,omitempty"`
-}
-
 type CommonResponse struct {
-	ClientID
+	ClientID string `json:"clientId,omitempty"`
 	// Parameters        interface{}
 	BankReference     string
 	CustomerReference string
