@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/fundex-id/bni-api-mgmt/config"
 	"github.com/fundex-id/bni-api-mgmt/dto"
@@ -26,6 +27,9 @@ type API struct {
 	config              config.Config
 	httpClient          *http.Client // for postGetToken only
 	retryablehttpClient *retryablehttp.Client
+
+	mutex       sync.Mutex
+	accessToken string
 }
 
 func newApi(config config.Config) *API {
@@ -58,6 +62,13 @@ func newApi(config config.Config) *API {
 	}))
 
 	return &api
+}
+
+func (api *API) setAccessToken(accessToken string) {
+	api.mutex.Lock()
+	defer api.mutex.Unlock()
+
+	api.accessToken = accessToken
 }
 
 func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
@@ -105,10 +116,10 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 	return &dtoResp, nil
 }
 
-func (api *API) postGetBalance(ctx context.Context, accessToken string, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
+func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
 	funcLog := logger.Logger(ctx)
 
-	urlQuery := url.Values{"access_token": []string{accessToken}}
+	urlQuery := url.Values{"access_token": []string{api.accessToken}}
 	urlTarget, err := buildURL(api.config.BNIServer, api.config.BalancePath, urlQuery)
 	if err != nil {
 		return nil, err

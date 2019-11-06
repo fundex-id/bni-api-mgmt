@@ -19,9 +19,8 @@ type BNI struct {
 	config    config.Config
 	signature *signature.Signature
 
-	mutex       sync.Mutex
-	accessToken string
-	bniSessID   string
+	mutex     sync.Mutex
+	bniSessID string
 }
 
 func New(config config.Config) *BNI {
@@ -44,7 +43,7 @@ func (b *BNI) setAccessToken(accessToken string) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	b.accessToken = accessToken
+	b.api.setAccessToken(accessToken)
 	b.bniSessID = uuid.NewRandom().String()
 }
 
