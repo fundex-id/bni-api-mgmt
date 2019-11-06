@@ -72,11 +72,14 @@ func init() {
 func Logger(ctx context.Context) *zap.SugaredLogger {
 	newLogger := logger
 	if ctx != nil {
-		if ctxRqId, ok := ctx.Value(ctxApp.ReqIdKey).(string); ok {
-			newLogger = newLogger.With(zap.String(ctxApp.ReqIdKey, ctxRqId))
+		if ctxHttpReqId, ok := ctx.Value(ctxApp.HttpReqIdKey).(string); ok {
+			newLogger = newLogger.With(zap.String(ctxApp.HttpReqIdKey, ctxHttpReqId))
 		}
-		if ctxSessionId, ok := ctx.Value(ctxApp.SessIdKey).(string); ok {
-			newLogger = newLogger.With(zap.String(ctxApp.SessIdKey, ctxSessionId))
+		if ctxHttpSessId, ok := ctx.Value(ctxApp.HttpSessIdKey).(string); ok {
+			newLogger = newLogger.With(zap.String(ctxApp.HttpSessIdKey, ctxHttpSessId))
+		}
+		if ctxBniSessId, ok := ctx.Value(ctxApp.BniSessIdKey).(string); ok {
+			newLogger = newLogger.With(zap.String(ctxApp.BniSessIdKey, ctxBniSessId))
 		}
 	}
 	return newLogger
