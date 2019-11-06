@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 
 	"github.com/fundex-id/bni-api-mgmt/config"
-	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/juju/errors"
 )
@@ -25,7 +24,7 @@ func New(config config.SignatureConfig) *Signature {
 	return &Signature{config: config}
 }
 
-func (s *Signature) sha256WithRSA(data string) (string, error) {
+func (s *Signature) Sha256WithRSA(data string) (string, error) {
 
 	if s.privateKey == nil {
 		privateKey, err := loadPrivateKeyFromPEMFile(s.config.PrivateKeyPath)
@@ -73,8 +72,4 @@ func loadPrivateKeyFromPEMFile(privKeyFileLocation string) (*rsa.PrivateKey, err
 	}
 
 	return privateKey, nil
-}
-
-func (s *Signature) GetBalance(dto *dto.GetBalanceRequest) {
-
 }
