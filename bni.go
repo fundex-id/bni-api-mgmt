@@ -38,17 +38,6 @@ func New(config Config) *BNI {
 	return &bni
 }
 
-func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, error) {
-	resp, err := b.api.postGetToken(ctx)
-	if err != nil {
-		return nil, errors.Trace(err)
-	}
-
-	b.setAccessToken(resp.AccessToken)
-
-	return resp, nil
-}
-
 func (b *BNI) setAccessToken(accessToken string) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
@@ -73,4 +62,17 @@ func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (
 	}
 
 	return false, nil
+}
+
+// === APi based on spec ===
+
+func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, error) {
+	resp, err := b.api.postGetToken(ctx)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	b.setAccessToken(resp.AccessToken)
+
+	return resp, nil
 }
