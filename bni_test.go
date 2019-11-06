@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/fundex-id/bni-api-mgmt/config"
 	bniCtx "github.com/fundex-id/bni-api-mgmt/context"
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/util"
@@ -21,7 +22,7 @@ import (
 
 func TestBNI_DoAuthentication(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
-		givenConfig := Config{
+		givenConfig := config.Config{
 			AuthPath: "/oauth",
 			Username: "dummyusername",
 			Password: "dummypassword",
@@ -66,7 +67,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 	})
 
 	t.Run("bad auth", func(t *testing.T) {
-		givenConfig := Config{
+		givenConfig := config.Config{
 			AuthPath: "/oauth",
 			Username: "dummyusername",
 			Password: "dummypassword",

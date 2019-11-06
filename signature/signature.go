@@ -1,4 +1,4 @@
-package bni
+package signature
 
 import (
 	"crypto"
@@ -10,16 +10,18 @@ import (
 	"encoding/pem"
 	"io/ioutil"
 
+	"github.com/fundex-id/bni-api-mgmt/config"
+	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/juju/errors"
 )
 
 type Signature struct {
-	config     SignatureConfig
+	config     config.SignatureConfig
 	privateKey *rsa.PrivateKey
 }
 
-func newSignature(config SignatureConfig) *Signature {
+func New(config config.SignatureConfig) *Signature {
 	return &Signature{config: config}
 }
 
@@ -71,4 +73,8 @@ func loadPrivateKeyFromPEMFile(privKeyFileLocation string) (*rsa.PrivateKey, err
 	}
 
 	return privateKey, nil
+}
+
+func (s *Signature) GetBalance(dto *dto.GetBalanceRequest) {
+
 }

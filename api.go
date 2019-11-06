@@ -11,6 +11,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/fundex-id/bni-api-mgmt/config"
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/hashicorp/go-cleanhttp"
@@ -22,12 +23,12 @@ import (
 )
 
 type API struct {
-	config              Config
+	config              config.Config
 	httpClient          *http.Client // for postGetToken only
 	retryablehttpClient *retryablehttp.Client
 }
 
-func newApi(config Config) *API {
+func newApi(config config.Config) *API {
 
 	httpClient := cleanhttp.DefaultPooledClient()
 	retryablehttpClient := retryablehttp.NewClient()
@@ -94,7 +95,54 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
 
-	var jsonResp dto.GetTokenResponse
+	var dtoResp dto.GetTokenResponse
+	err = json.NewDecoder(resp.Body).Decode(&dtoResp)
+
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	return &dtoResp, nil
+}
+
+func (api *API) postGetBalance(ctx context.Context, accessToken string, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
+	funcLog := logger.Logger(ctx)
+
+	urlQuery := url.Values{"access_token": []string{accessToken}}
+	urlTarget, err := buildURL(api.config.BNIServer, api.config.BalancePath, urlQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonReq, err := json.Marshal(dtoReq)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(jsonReq))
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	req.Header.Set("content-type", "application/json")
+
+	resp, err := api.httpClient.Do(req)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	defer resp.Body.Close()
+
+	bodyRespBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	funcLog.Info(resp.StatusCode)
+	funcLog.Info(string(bodyRespBytes))
+
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
+
+	var jsonResp dto.GetBalanceResponse
 	err = json.NewDecoder(resp.Body).Decode(&jsonResp)
 
 	if err != nil {

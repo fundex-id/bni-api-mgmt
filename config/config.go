@@ -1,4 +1,4 @@
-package bni
+package config
 
 type Config struct {
 	Username              string
@@ -6,6 +6,7 @@ type Config struct {
 	ClientID              string
 	BNIServer             string
 	AuthPath              string
+	BalancePath           string
 	InHouseInquiryPath    string
 	InterBankInquiryPath  string
 	InHouseTransferPath   string

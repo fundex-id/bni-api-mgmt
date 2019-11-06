@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/fundex-id/bni-api-mgmt/config"
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
+	"github.com/fundex-id/bni-api-mgmt/signature"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
 	"github.com/pborman/uuid"
@@ -14,19 +16,19 @@ import (
 
 type BNI struct {
 	api       *API
-	config    Config
-	signature *Signature
+	config    config.Config
+	signature *signature.Signature
 
 	mutex       sync.Mutex
 	accessToken string
 	bniSessID   string
 }
 
-func New(config Config) *BNI {
+func New(config config.Config) *BNI {
 	bni := BNI{
 		config:    config,
 		api:       newApi(config),
-		signature: newSignature(config.SignatureConfig),
+		signature: signature.New(config.SignatureConfig),
 	}
 
 	retryablehttpClient := retryablehttp.NewClient()
