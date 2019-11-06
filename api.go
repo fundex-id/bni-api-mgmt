@@ -64,7 +64,7 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 
 	urlTarget, err := buildURL(api.config.BNIServer, api.config.AuthPath, url.Values{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	form := url.Values{"grant_type": []string{"client_credentials"}}
