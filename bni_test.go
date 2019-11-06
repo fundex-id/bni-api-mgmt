@@ -60,7 +60,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 		assert.NotEmpty(t, dtoResp)
 		if util.AssertErrNil(t, err) {
-			assert.NotEmpty(t, bni.accessToken)
+			assert.NotEmpty(t, bni.api.accessToken)
 			assert.NotEmpty(t, bni.bniSessID)
 		}
 
@@ -91,7 +91,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 		assert.Nil(t, dtoResp)
 		if util.AssertErrNotNil(t, err) {
-			assert.Empty(t, bni.accessToken)
+			assert.Empty(t, bni.api.accessToken)
 			assert.Empty(t, bni.bniSessID)
 		}
 	})
