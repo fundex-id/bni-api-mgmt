@@ -1,16 +1,18 @@
 package bni
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_joinUrl(t *testing.T) {
+func Test_buildURL(t *testing.T) {
 	baseUrl := "https://apidev.bni.co.id:8065"
 
 	type args struct {
-		path string
+		path  string
+		query url.Values
 	}
 	tests := []struct {
 		name    string
@@ -18,14 +20,17 @@ func Test_joinUrl(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		{name: "auth", args: args{path: "/api/oauth/token"}, want: baseUrl + "/api/oauth/token", wantErr: false},
+		{name: "auth", args: args{path: "/api/oauth/token"},
+			want: baseUrl + "/api/oauth/token", wantErr: false},
+		{name: "with query", args: args{path: "/H2H/getbalance", query: url.Values{"access_token": []string{"12345"}}},
+			want: baseUrl + "/H2H/getbalance?access_token=12345", wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := joinUrl(baseUrl, tt.args.path)
+			got, err := buildURL(baseUrl, tt.args.path, tt.args.query)
 
-			assert.Equal(t, (err != nil), tt.wantErr)
-			assert.Equal(t, got, tt.want)
+			assert.Equal(t, tt.wantErr, (err != nil))
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

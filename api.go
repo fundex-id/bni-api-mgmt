@@ -62,7 +62,7 @@ func newApi(config Config) *API {
 func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
 	funcLog := logger.Logger(ctx)
 
-	urlTarget, err := joinUrl(api.config.BNIServer, api.config.AuthPath)
+	urlTarget, err := buildURL(api.config.BNIServer, api.config.AuthPath, url.Values{})
 	if err != nil {
 		return nil, err
 	}
@@ -108,13 +108,14 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 
 // }
 
-func joinUrl(baseUrl, paths string) (string, error) {
+func buildURL(baseUrl, paths string, query url.Values) (string, error) {
 	u, err := url.Parse(baseUrl)
 	if err != nil {
 		return "", errors.Trace(err)
 	}
 
 	u.Path = path.Join(u.Path, paths)
+	u.RawQuery = query.Encode()
 
 	return u.String(), nil
 }
