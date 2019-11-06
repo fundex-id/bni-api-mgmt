@@ -10,10 +10,11 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
+	"github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -21,18 +22,19 @@ import (
 )
 
 type API struct {
-	config     Config
-	httpClient *http.Client
+	config              Config
+	httpClient          *http.Client // for postGetToken only
+	retryablehttpClient *retryablehttp.Client
 }
 
 func newApi(config Config) *API {
 
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-	}
+	httpClient := cleanhttp.DefaultPooledClient()
+	retryablehttpClient := retryablehttp.NewClient()
 
 	api := API{config: config,
-		httpClient: httpClient,
+		httpClient:          httpClient,
+		retryablehttpClient: retryablehttpClient,
 	}
 
 	logger.SetOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
@@ -60,19 +62,20 @@ func newApi(config Config) *API {
 func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
 	funcLog := logger.Logger(ctx)
 
-	url, err := joinUrl(api.config.BNIServer, api.config.AuthPath)
+	urlTarget, err := joinUrl(api.config.BNIServer, api.config.AuthPath)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyReq := strings.NewReader("grant_type=client_credentials")
+	form := url.Values{"grant_type": []string{"client_credentials"}}
+	bodyReq := strings.NewReader(form.Encode())
 
-	req, err := http.NewRequest(http.MethodPost, url, bodyReq)
+	req, err := http.NewRequest(http.MethodPost, urlTarget, bodyReq)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
 
-	req.Header.Add("content-type", "application/x-www-form-urlencoded")
+	req.Header.Set("content-type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(api.config.Username, api.config.Password)
 
 	resp, err := api.httpClient.Do(req)

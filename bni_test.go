@@ -54,11 +54,13 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.httpClient = testServer.Client()
 
-		ctx := bniCtx.WithReqId(context.Background(), uuid.NewRandom().String())
+		ctx := bniCtx.WithHttpReqId(context.Background(), uuid.NewRandom().String())
 		dtoResp, err := bni.DoAuthentication(ctx)
-		util.AssertErrNil(t, err)
-		if assert.NotNil(t, dtoResp) {
-			assert.NotEmpty(t, dtoResp.Session.ID)
+
+		assert.NotEmpty(t, dtoResp)
+		if util.AssertErrNil(t, err) {
+			assert.NotEmpty(t, bni.accessToken)
+			assert.NotEmpty(t, bni.bniSessID)
 		}
 
 	})
@@ -83,10 +85,14 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.httpClient = testServer.Client()
 
-		ctx := bniCtx.WithReqId(context.Background(), uuid.NewRandom().String())
+		ctx := bniCtx.WithHttpReqId(context.Background(), uuid.NewRandom().String())
 		dtoResp, err := bni.DoAuthentication(ctx)
-		util.AssertErrNotNil(t, err)
+
 		assert.Nil(t, dtoResp)
+		if util.AssertErrNotNil(t, err) {
+			assert.Empty(t, bni.accessToken)
+			assert.Empty(t, bni.bniSessID)
+		}
 	})
 }
 
