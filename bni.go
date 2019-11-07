@@ -3,6 +3,7 @@ package bni
 import (
 	"context"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/fundex-id/bni-api-mgmt/config"
@@ -12,6 +13,9 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
 	"github.com/pborman/uuid"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type BNI struct {
@@ -29,6 +33,25 @@ func New(config config.Config) *BNI {
 		api:       newApi(config),
 		signature: signature.New(config.SignatureConfig),
 	}
+
+	logger.SetOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+
+		fileWriteSyncer := zapcore.AddSync(&lumberjack.Logger{
+			Filename: config.LogPath,
+			MaxSize:  500, // megabytes
+			// MaxBackups: 3,
+			// MaxAge:     28, // days
+		})
+		stdoutWriteSyncer := zapcore.AddSync(os.Stdout)
+
+		return zapcore.NewCore(
+			zapcore.NewJSONEncoder(logger.DefaultEncoderConfig),
+			zapcore.NewMultiWriteSyncer(fileWriteSyncer, stdoutWriteSyncer),
+			zap.InfoLevel,
+		)
+
+		// return core
+	}))
 
 	retryablehttpClient := retryablehttp.NewClient()
 	retryablehttpClient.RetryMax = 2
