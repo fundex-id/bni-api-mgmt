@@ -12,12 +12,12 @@ import (
 var logger *zap.SugaredLogger
 
 var DefaultEncoderConfig zapcore.EncoderConfig = zapcore.EncoderConfig{
-	TimeKey:        "time",
+	TimeKey:        "ts",
 	LevelKey:       "level",
 	NameKey:        "logger",
 	CallerKey:      "caller",
 	MessageKey:     "msg",
-	StacktraceKey:  "stacktrace",
+	StacktraceKey:  "trace",
 	LineEnding:     zapcore.DefaultLineEnding,
 	EncodeLevel:    zapcore.LowercaseLevelEncoder,
 	EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
