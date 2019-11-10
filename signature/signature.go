@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 
 	"github.com/fundex-id/bni-api-mgmt/config"
-	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/juju/errors"
 )
 
@@ -46,11 +45,11 @@ func (s *Signature) Sha256WithRSA(data string) (string, error) {
 		return "", errors.Trace(err)
 	}
 
-	logger.Infof("Signature in byte: %v\n\n", signature)
+	// logger.Infof("Signature in byte: %v\n\n", signature)
 
 	encodedSig := base64.StdEncoding.EncodeToString(signature)
 
-	logger.Infof("Encoded signature: %v\n\n", encodedSig)
+	// logger.Infof("Encoded signature: %v\n\n", encodedSig)
 
 	return encodedSig, nil
 }
