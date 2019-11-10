@@ -20,15 +20,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testLogPath string = "test.log"
 var dummySignatureConfig config.SignatureConfig = config.SignatureConfig{
 	PrivateKeyPath: "testdata/id_rsa.pem",
 }
+
 func TestBNI_DoAuthentication(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
 			AuthPath: "/oauth",
 			Username: "dummyusername",
 			Password: "dummypassword",
+			LogPath:  testLogPath,
 		}
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -74,6 +77,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 			AuthPath: "/oauth",
 			Username: "dummyusername",
 			Password: "dummypassword",
+			LogPath:  testLogPath,
 		}
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
