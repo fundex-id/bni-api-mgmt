@@ -93,7 +93,7 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 	return &dtoResp, nil
 }
 
-func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
+func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.ApiResponse, error) {
 	funcLog := logger.Logger(ctx)
 
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}
@@ -130,7 +130,7 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
 
-	var jsonResp dto.GetBalanceResponse
+	var jsonResp dto.ApiResponse
 	err = json.NewDecoder(resp.Body).Decode(&jsonResp)
 
 	if err != nil {
