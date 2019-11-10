@@ -55,7 +55,7 @@ func New(config config.Config) *BNI {
 	}))
 
 	retryablehttpClient := retryablehttp.NewClient()
-	retryablehttpClient.RetryMax = 2
+	retryablehttpClient.RetryMax = 1
 	retryablehttpClient.CheckRetry = bni.retryPolicy
 
 	bni.api.retryablehttpClient = retryablehttpClient
