@@ -135,7 +135,11 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 
 	funcLog.Info("=== END GET_BALANCE ===")
 
-	return dtoResp, nil
+	if dtoResp.GetBalanceResponse == nil {
+		return nil, errors.New("GetBalance: bad response")
+	}
+
+	return dtoResp.GetBalanceResponse, nil
 }
 
 // === Signature of each request ===
