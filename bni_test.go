@@ -16,7 +16,7 @@ import (
 	bniCtx "github.com/fundex-id/bni-api-mgmt/context"
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/util"
-	"github.com/pborman/uuid"
+	"github.com/lithammer/shortuuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -55,7 +55,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.httpClient = testServer.Client()
 
-		ctx := bniCtx.WithHttpReqId(context.Background(), uuid.NewRandom().String())
+		ctx := bniCtx.WithHttpReqId(context.Background(), shortuuid.New())
 		dtoResp, err := bni.DoAuthentication(ctx)
 
 		assert.NotEmpty(t, dtoResp)
@@ -86,7 +86,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.httpClient = testServer.Client()
 
-		ctx := bniCtx.WithHttpReqId(context.Background(), uuid.NewRandom().String())
+		ctx := bniCtx.WithHttpReqId(context.Background(), shortuuid.New())
 		dtoResp, err := bni.DoAuthentication(ctx)
 
 		assert.Nil(t, dtoResp)

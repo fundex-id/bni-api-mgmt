@@ -68,7 +68,7 @@ func (b *BNI) setAccessToken(accessToken string) {
 	defer b.mutex.Unlock()
 
 	b.api.setAccessToken(accessToken)
-	b.bniSessID = uuid.NewRandom().String()
+	b.bniSessID = shortuuid.New()
 }
 
 func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (bool, error) {
