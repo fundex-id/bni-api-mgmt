@@ -30,7 +30,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			assert.Equal(t, http.MethodPost, req.Method)
-			assert.Equal(t, givenConfig.AuthPath, req.URL.String())
+			assert.Equal(t, givenConfig.AuthPath, req.URL.Path)
 
 			assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("content-type"))
 			assert.Equal(t, "Basic "+basicAuth(givenConfig.Username, givenConfig.Password), req.Header.Get("authorization"))
@@ -75,7 +75,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			assert.Equal(t, http.MethodPost, req.Method)
-			assert.Equal(t, givenConfig.AuthPath, req.URL.String())
+			assert.Equal(t, givenConfig.AuthPath, req.URL.Path)
 
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
