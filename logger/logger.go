@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	ctxApp "github.com/fundex-id/bni-api-mgmt/context"
+	bniCtx "github.com/fundex-id/bni-api-mgmt/context"
 )
 
 var logger *zap.SugaredLogger
@@ -72,14 +72,14 @@ func init() {
 func Logger(ctx context.Context) *zap.SugaredLogger {
 	newLogger := logger
 	if ctx != nil {
-		if ctxHttpReqId, ok := ctx.Value(ctxApp.HttpReqIdKey).(string); ok {
-			newLogger = newLogger.With(zap.String(ctxApp.HttpReqIdKey, ctxHttpReqId))
+		if ctxHTTPReqID, ok := ctx.Value(bniCtx.HTTPReqIDKey).(string); ok {
+			newLogger = newLogger.With(zap.String(bniCtx.HTTPReqIDKey, ctxHTTPReqID))
 		}
-		if ctxHttpSessId, ok := ctx.Value(ctxApp.HttpSessIdKey).(string); ok {
-			newLogger = newLogger.With(zap.String(ctxApp.HttpSessIdKey, ctxHttpSessId))
+		if ctxHTTPSessID, ok := ctx.Value(bniCtx.HTTPSessIDKey).(string); ok {
+			newLogger = newLogger.With(zap.String(bniCtx.HTTPSessIDKey, ctxHTTPSessID))
 		}
-		if ctxBniSessId, ok := ctx.Value(ctxApp.BniSessIdKey).(string); ok {
-			newLogger = newLogger.With(zap.String(ctxApp.BniSessIdKey, ctxBniSessId))
+		if ctxBNISessID, ok := ctx.Value(bniCtx.BNISessIDKey).(string); ok {
+			newLogger = newLogger.With(zap.String(bniCtx.BNISessIDKey, ctxBNISessID))
 		}
 	}
 	return newLogger

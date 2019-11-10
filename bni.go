@@ -107,7 +107,7 @@ func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, erro
 }
 
 func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
-	ctx = bniCtx.WithBniSessId(ctx, b.bniSessID)
+	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
 
 	b.log(ctx).Info("=== GET_BALANCE ===")
 
@@ -141,7 +141,7 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 // === misc func ===
 
 func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
-	return logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
+	return logger.Logger(bniCtx.WithBNISessID(ctx, b.bniSessID))
 }
 
 // === Signature of each request ===

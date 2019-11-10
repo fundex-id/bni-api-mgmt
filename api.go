@@ -144,7 +144,7 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 
 // === misc func ===
 func (api *API) log(ctx context.Context) *zap.SugaredLogger {
-	return logger.Logger(bniCtx.WithBniSessId(ctx, api.bniSessID))
+	return logger.Logger(bniCtx.WithBNISessID(ctx, api.bniSessID))
 }
 
 func buildURL(baseUrl, paths string, query url.Values) (string, error) {

@@ -58,7 +58,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.httpClient = testServer.Client()
 
-		ctx := bniCtx.WithHttpReqId(context.Background(), shortuuid.New())
+		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
 		dtoResp, err := bni.DoAuthentication(ctx)
 
 		assert.NotEmpty(t, dtoResp)
@@ -89,7 +89,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.httpClient = testServer.Client()
 
-		ctx := bniCtx.WithHttpReqId(context.Background(), shortuuid.New())
+		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
 		dtoResp, err := bni.DoAuthentication(ctx)
 
 		assert.Nil(t, dtoResp)
