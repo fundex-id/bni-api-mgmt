@@ -13,7 +13,7 @@ import (
 	"github.com/fundex-id/bni-api-mgmt/signature"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
-	"github.com/pborman/uuid"
+	"github.com/lithammer/shortuuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
