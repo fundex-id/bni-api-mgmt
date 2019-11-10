@@ -19,6 +19,8 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+var BadResponseError error = errors.New("Bad response")
+
 type BNI struct {
 	api       *API
 	config    config.Config
@@ -129,11 +131,12 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 	logResp := dto.BuildLogResponse(BalanceResponse, "", "", dtoResp)
 	b.log(ctx).Infof("%+v", logResp)
 
-	b.log(ctx).Info("=== END GET_BALANCE ===")
-
 	if dtoResp.GetBalanceResponse == nil {
-		return nil, errors.New("GetBalance: bad response")
+		b.log(ctx).Error(BadResponseError)
+		return nil, BadResponseError
 	}
+
+	b.log(ctx).Info("=== END GET_BALANCE ===")
 
 	return dtoResp.GetBalanceResponse, nil
 }
