@@ -107,14 +107,14 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 		return nil, errors.Trace(err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(jsonReq))
+	req, err := retryablehttp.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(jsonReq))
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
 
 	req.Header.Set("content-type", "application/json")
 
-	resp, err := api.httpClient.Do(req)
+	resp, err := api.retryablehttpClient.Do(req)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
