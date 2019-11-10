@@ -67,8 +67,9 @@ func (b *BNI) setAccessToken(accessToken string) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	b.api.setAccessToken(accessToken)
-	b.bniSessID = shortuuid.New()
+	newSessID := shortuuid.New()
+	b.api.setAccessTokenAndSessID(accessToken, newSessID)
+	b.bniSessID = newSessID
 }
 
 func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (bool, error) {
@@ -77,10 +78,8 @@ func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (
 		return false, ctx.Err()
 	}
 
-	funcLog := logger.Logger(ctx)
-
-	if resp.StatusCode == 401 {
-		funcLog.Infof("Retry to auth. Prev err: %+v", err)
+	if resp.StatusCode == http.StatusUnauthorized {
+		b.log(ctx).Infof("Retry to auth. Got resp (code: %d, status: %s). Prev err: %+v", resp.StatusCode, resp.Status, err)
 		_, errAuth := b.DoAuthentication(ctx)
 
 		return true, errAuth
@@ -92,54 +91,57 @@ func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (
 // === APi based on spec ===
 
 func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, error) {
-	funcLog := logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
-
-	funcLog.Info("=== DO_AUTH ===")
+	b.log(ctx).Info("=== DO_AUTH ===")
 
 	dtoResp, err := b.api.postGetToken(ctx)
 	if err != nil {
-		funcLog.Error(errors.Details(err))
+		b.log(ctx).Error(errors.Details(err))
 		return nil, errors.Trace(err)
 	}
 
 	b.setAccessToken(dtoResp.AccessToken)
 
-	funcLog = logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
-	funcLog.Info("=== END DO_AUTH ===")
+	b.log(ctx).Info("=== END DO_AUTH ===")
 
 	return dtoResp, nil
 }
 
 func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
-	funcLog := logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
+	ctx = bniCtx.WithBniSessId(ctx, b.bniSessID)
 
-	funcLog.Info("=== GET_BALANCE ===")
+	b.log(ctx).Info("=== GET_BALANCE ===")
 
 	dtoReq.ClientID = b.config.ClientID
 	if err := b.buildSignatureGetBalance(dtoReq); err != nil {
-		funcLog.Error(errors.Details(err))
+		b.log(ctx).Error(errors.Details(err))
 		return nil, errors.Trace(err)
 	}
 
 	logReq := dto.BuildLogRequest(BalanceRequest, "", "", dtoReq)
-	funcLog.Infof("%+v", logReq)
+	b.log(ctx).Infof("%+v", logReq)
 
 	dtoResp, err := b.api.postGetBalance(ctx, dtoReq)
 	if err != nil {
-		funcLog.Error(errors.Details(err))
+		b.log(ctx).Error(errors.Details(err))
 		return nil, errors.Trace(err)
 	}
 
 	logResp := dto.BuildLogResponse(BalanceResponse, "", "", dtoResp)
-	funcLog.Infof("%+v", logResp)
+	b.log(ctx).Infof("%+v", logResp)
 
-	funcLog.Info("=== END GET_BALANCE ===")
+	b.log(ctx).Info("=== END GET_BALANCE ===")
 
 	if dtoResp.GetBalanceResponse == nil {
 		return nil, errors.New("GetBalance: bad response")
 	}
 
 	return dtoResp.GetBalanceResponse, nil
+}
+
+// === misc func ===
+
+func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
+	return logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
 }
 
 // === Signature of each request ===

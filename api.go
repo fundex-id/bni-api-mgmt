@@ -12,11 +12,13 @@ import (
 	"sync"
 
 	"github.com/fundex-id/bni-api-mgmt/config"
+	bniCtx "github.com/fundex-id/bni-api-mgmt/context"
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
+	"go.uber.org/zap"
 )
 
 type API struct {
@@ -26,6 +28,7 @@ type API struct {
 
 	mutex       sync.Mutex
 	accessToken string
+	bniSessID   string
 }
 
 func newApi(config config.Config) *API {
@@ -41,16 +44,15 @@ func newApi(config config.Config) *API {
 	return &api
 }
 
-func (api *API) setAccessToken(accessToken string) {
+func (api *API) setAccessTokenAndSessID(accessToken, bniSessID string) {
 	api.mutex.Lock()
 	defer api.mutex.Unlock()
 
 	api.accessToken = accessToken
+	api.bniSessID = bniSessID
 }
 
 func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
-	funcLog := logger.Logger(ctx)
-
 	urlTarget, err := buildURL(api.config.BNIServer, api.config.AuthPath, url.Values{})
 	if err != nil {
 		return nil, errors.Trace(err)
@@ -79,8 +81,8 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 		return nil, errors.Trace(err)
 	}
 
-	funcLog.Info(resp.StatusCode)
-	funcLog.Info(string(bodyRespBytes))
+	api.log(ctx).Info(resp.StatusCode)
+	api.log(ctx).Info(string(bodyRespBytes))
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
 
@@ -95,8 +97,6 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 }
 
 func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.ApiResponse, error) {
-	funcLog := logger.Logger(ctx)
-
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}
 	urlTarget, err := buildURL(api.config.BNIServer, api.config.BalancePath, urlQuery)
 	if err != nil {
@@ -127,8 +127,8 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 		return nil, errors.Trace(err)
 	}
 
-	funcLog.Info(resp.StatusCode)
-	funcLog.Info(string(bodyRespBytes))
+	api.log(ctx).Info(resp.StatusCode)
+	api.log(ctx).Info(string(bodyRespBytes))
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
 
@@ -142,9 +142,10 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 	return &jsonResp, nil
 }
 
-// func (api *Api) sendInHouseTransferRequest(accessToken string, inHouseTransferRequet InHouseTransferRequest) error {
-
-// }
+// === misc func ===
+func (api *API) log(ctx context.Context) *zap.SugaredLogger {
+	return logger.Logger(bniCtx.WithBniSessId(ctx, api.bniSessID))
+}
 
 func buildURL(baseUrl, paths string, query url.Values) (string, error) {
 	u, err := url.Parse(baseUrl)
