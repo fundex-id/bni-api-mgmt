@@ -63,6 +63,7 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
+	req = req.WithContext(ctx)
 
 	req.Header.Set("content-type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(api.config.Username, api.config.Password)
@@ -111,6 +112,7 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
+	req = req.WithContext(ctx)
 
 	req.Header.Set("content-type", "application/json")
 
