@@ -91,12 +91,60 @@ func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (
 // === APi based on spec ===
 
 func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, error) {
-	resp, err := b.api.postGetToken(ctx)
+	funcLog := logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
+
+	funcLog.Info("=== DO_AUTH ===")
+
+	dtoResp, err := b.api.postGetToken(ctx)
 	if err != nil {
+		funcLog.Error(errors.Details(err))
 		return nil, errors.Trace(err)
 	}
 
-	b.setAccessToken(resp.AccessToken)
+	b.setAccessToken(dtoResp.AccessToken)
 
-	return resp, nil
+	funcLog = logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
+	funcLog.Info("=== END DO_AUTH ===")
+
+	return dtoResp, nil
+}
+
+func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
+	funcLog := logger.Logger(bniCtx.WithBniSessId(ctx, b.bniSessID))
+
+	funcLog.Info("=== GET_BALANCE ===")
+
+	dtoReq.ClientID = b.config.ClientID
+	if err := b.buildSignatureGetBalance(dtoReq); err != nil {
+		funcLog.Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logReq := dto.BuildLogRequest(BalanceRequest, "", "", dtoReq)
+	funcLog.Infof("%+v", logReq)
+
+	dtoResp, err := b.api.postGetBalance(ctx, dtoReq)
+	if err != nil {
+		funcLog.Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logResp := dto.BuildLogResponse(BalanceResponse, "", "", dtoResp)
+	funcLog.Infof("%+v", logResp)
+
+	funcLog.Info("=== END GET_BALANCE ===")
+
+	return dtoResp, nil
+}
+
+// === Signature of each request ===
+
+func (b *BNI) buildSignatureGetBalance(dtoReq *dto.GetBalanceRequest) error {
+	sign, err := b.signature.Sha256WithRSA(dtoReq.ClientID + dtoReq.AccountNo)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	dtoReq.Signature = sign
+
+	return nil
 }
