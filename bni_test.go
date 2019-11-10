@@ -20,6 +20,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var dummySignatureConfig config.SignatureConfig = config.SignatureConfig{
+	PrivateKeyPath: "testdata/id_rsa.pem",
+}
 func TestBNI_DoAuthentication(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
