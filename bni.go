@@ -114,7 +114,7 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 	b.log(ctx).Info("=== GET_BALANCE ===")
 
 	dtoReq.ClientID = b.config.ClientID
-	if err := b.buildSignatureGetBalance(dtoReq); err != nil {
+	if err := b.setSignatureGetBalance(dtoReq); err != nil {
 		b.log(ctx).Error(errors.Details(err))
 		return nil, errors.Trace(err)
 	}
@@ -149,7 +149,7 @@ func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
 
 // === Signature of each request ===
 
-func (b *BNI) buildSignatureGetBalance(dtoReq *dto.GetBalanceRequest) error {
+func (b *BNI) setSignatureGetBalance(dtoReq *dto.GetBalanceRequest) error {
 	sign, err := b.signature.Sha256WithRSA(dtoReq.ClientID + dtoReq.AccountNo)
 	if err != nil {
 		return errors.Trace(err)
