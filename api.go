@@ -97,18 +97,23 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 }
 
 func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.ApiResponse, error) {
+	jsonReq, err := json.Marshal(dtoReq)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	return api.postToAPI(ctx, api.config.BalancePath, jsonReq)
+}
+
+// Generic POST request to API
+func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}
 	urlTarget, err := buildURL(api.config.BNIServer, api.config.BalancePath, urlQuery)
 	if err != nil {
 		return nil, err
 	}
 
-	jsonReq, err := json.Marshal(dtoReq)
-	if err != nil {
-		return nil, errors.Trace(err)
-	}
-
-	req, err := retryablehttp.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(jsonReq))
+	req, err := retryablehttp.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(bodyReqPayload))
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
