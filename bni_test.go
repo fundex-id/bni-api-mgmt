@@ -290,3 +290,29 @@ func getJSON(filePath string, obj interface{}) {
 	}
 
 }
+
+func buildBNIAndMockServerGoodResponse(t *testing.T, givenConfig config.Config, assertPath string, jsonPathTestData string) (bni *BNI, testServer *httptest.Server) {
+	t.Helper()
+
+	testServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, http.MethodPost, req.Method)
+		assert.Equal(t, assertPath, req.URL.Path)
+
+		assert.Equal(t, "application/json", req.Header.Get("content-type"))
+
+		var dtoResp dto.ApiResponse
+		getJSON(jsonPathTestData, &dtoResp)
+
+		w.WriteHeader(http.StatusOK)
+		err := json.NewEncoder(w).Encode(dtoResp)
+		util.AssertErrNil(t, err)
+
+	}))
+
+	givenConfig.BNIServer = testServer.URL
+
+	bni = New(givenConfig)
+	bni.api.retryablehttpClient.HTTPClient = testServer.Client()
+
+	return bni, testServer
+}
