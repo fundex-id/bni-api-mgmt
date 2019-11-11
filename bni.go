@@ -119,7 +119,7 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 		return nil, errors.Trace(err)
 	}
 
-	logReq := dto.BuildLogRequest(BalanceRequest, "", "", dtoReq)
+	logReq := dto.BuildLogRequest(BalanceRequest, dtoReq)
 	b.log(ctx).Infof("%+v", logReq)
 
 	dtoResp, err := b.api.postGetBalance(ctx, dtoReq)
@@ -128,7 +128,7 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 		return nil, errors.Trace(err)
 	}
 
-	logResp := dto.BuildLogResponse(BalanceResponse, "", "", dtoResp)
+	logResp := dto.BuildLogResponse(BalanceResponse, dtoResp)
 	b.log(ctx).Infof("%+v", logResp)
 
 	if dtoResp.GetBalanceResponse == nil {
