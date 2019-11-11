@@ -13,7 +13,7 @@ type GetTokenResponse struct {
 // === API resp ====
 
 type ApiResponse struct {
-	GetBalanceResponse *GetBalanceResponse
+	GetBalanceResponse *GetBalanceResponse `json:"getBalanceResponse,omitempty"`
 
 	BadRespResponse             *BadRespResponse             `json:"Response,omitempty"`
 	BadRespGeneralErrorResponse *BadRespGeneralErrorResponse `json:"General Error Response,omitempty"`
