@@ -9,3 +9,8 @@ type GetBalanceRequest struct {
 	CommonRequest
 	AccountNo string `json:"accountNo,omitempty"`
 }
+
+type GetInHouseInquiryRequest struct {
+	CommonRequest
+	AccountNo string `json:"accountNo,omitempty"`
+}

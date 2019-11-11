@@ -13,7 +13,8 @@ type GetTokenResponse struct {
 // === API resp ====
 
 type ApiResponse struct {
-	GetBalanceResponse *GetBalanceResponse `json:"getBalanceResponse,omitempty"`
+	GetInHouseInquiryResponse *GetInHouseInquiryResponse `json:"getInHouseInquiryResponse,omitempty"`
+	GetBalanceResponse        *GetBalanceResponse        `json:"getBalanceResponse,omitempty"`
 
 	BadRespResponse             *BadRespResponse             `json:"Response,omitempty"`
 	BadRespGeneralErrorResponse *BadRespGeneralErrorResponse `json:"General Error Response,omitempty"`
@@ -29,6 +30,20 @@ type GetBalanceResponseParam struct {
 	CustomerName    string `json:"customerName,omitempty"`
 	AccountCurrency string `json:"accountCurrency,omitempty"`
 	AccountBalance  int64  `json:"accountBalance,omitempty"`
+}
+
+type GetInHouseInquiryResponse struct {
+	CommonResponse
+	Parameters GetInHouseInquiryResponseParam `json:"parameters,omitempty"`
+}
+
+type GetInHouseInquiryResponseParam struct {
+	CommonResponseParam
+	CustomerName    string `json:"customerName,omitempty"`
+	AccountCurrency string `json:"accountCurrency,omitempty"`
+	AccountNumber   string `json:"accountNumber,omitempty"`
+	AccountStatus   string `json:"accountStatus,omitempty"`
+	AccountType     string `json:"accountType,omitempty"`
 }
 
 // === BAD resp ===
@@ -82,8 +97,4 @@ func GetCommonResponse(parentResp ParentResponse, keyResp string) (*CommonRespon
 	}
 
 	return &resp, nil
-}
-
-type GetInHouseInquiryResponseParam struct {
-	CommonResponseParam
 }

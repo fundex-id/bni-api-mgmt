@@ -105,6 +105,15 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 	return api.postToAPI(ctx, api.config.BalancePath, jsonReq)
 }
 
+func (api *API) postGetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInquiryRequest) (*dto.ApiResponse, error) {
+	jsonReq, err := json.Marshal(dtoReq)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	return api.postToAPI(ctx, api.config.InHouseInquiryPath, jsonReq)
+}
+
 // Generic POST request to API
 func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}

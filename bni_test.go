@@ -261,6 +261,28 @@ func TestBNI_GetBalance(t *testing.T) {
 	})
 }
 
+func TestBNI_GetInHouseInquiry(t *testing.T) {
+	t.Run("good case", func(t *testing.T) {
+		givenConfig := config.Config{
+			InHouseInquiryPath: "/H2H/getinhouseinquiry",
+			LogPath:            testLogPath,
+			SignatureConfig:    dummySignatureConfig,
+		}
+
+		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig, givenConfig.InHouseInquiryPath, "testdata/get_inhouseinquiry_response.json")
+
+		dtoReq := dto.GetInHouseInquiryRequest{AccountNo: "115471119"}
+
+		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
+		dtoResp, err := bni.GetInHouseInquiry(ctx, &dtoReq)
+
+		util.AssertErrNil(t, err)
+		assert.NotEmpty(t, dtoResp)
+
+		testServer.Close()
+	})
+}
+
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
 	return base64.StdEncoding.EncodeToString([]byte(auth))

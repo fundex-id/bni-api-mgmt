@@ -141,6 +141,39 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 	return dtoResp.GetBalanceResponse, nil
 }
 
+func (b *BNI) GetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInquiryRequest) (*dto.GetInHouseInquiryResponse, error) {
+	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+
+	b.log(ctx).Info("=== GET_IN_HOUSE_INQUIRY ===")
+
+	dtoReq.ClientID = b.config.ClientID
+	if err := b.setSignatureGetInHouseInquiry(dtoReq); err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logReq := dto.BuildLogRequest(InHouseInquiryRequest, dtoReq)
+	b.log(ctx).Infof("%+v", logReq)
+
+	dtoResp, err := b.api.postGetInHouseInquiry(ctx, dtoReq)
+	if err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logResp := dto.BuildLogResponse(InHouseInquiryResponse, dtoResp)
+	b.log(ctx).Infof("%+v", logResp)
+
+	if dtoResp.GetInHouseInquiryResponse == nil {
+		b.log(ctx).Error(BadResponseError)
+		return nil, BadResponseError
+	}
+
+	b.log(ctx).Info("=== END GET_IN_HOUSE_INQUIRY ===")
+
+	return dtoResp.GetInHouseInquiryResponse, nil
+}
+
 // === misc func ===
 
 func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
@@ -150,6 +183,16 @@ func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
 // === Signature of each request ===
 
 func (b *BNI) setSignatureGetBalance(dtoReq *dto.GetBalanceRequest) error {
+	sign, err := b.signature.Sha256WithRSA(dtoReq.ClientID + dtoReq.AccountNo)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	dtoReq.Signature = sign
+
+	return nil
+}
+
+func (b *BNI) setSignatureGetInHouseInquiry(dtoReq *dto.GetInHouseInquiryRequest) error {
 	sign, err := b.signature.Sha256WithRSA(dtoReq.ClientID + dtoReq.AccountNo)
 	if err != nil {
 		return errors.Trace(err)
