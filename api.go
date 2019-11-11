@@ -108,7 +108,7 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 // Generic POST request to API
 func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}
-	urlTarget, err := buildURL(api.config.BNIServer, api.config.BalancePath, urlQuery)
+	urlTarget, err := buildURL(api.config.BNIServer, path, urlQuery)
 	if err != nil {
 		return nil, err
 	}
