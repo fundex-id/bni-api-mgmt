@@ -114,6 +114,15 @@ func (api *API) postGetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHous
 	return api.postToAPI(ctx, api.config.InHouseInquiryPath, jsonReq)
 }
 
+func (api *API) postDoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto.ApiResponse, error) {
+	jsonReq, err := json.Marshal(dtoReq)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	return api.postToAPI(ctx, api.config.InHouseTransferPath, jsonReq)
+}
+
 // Generic POST request to API
 func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}

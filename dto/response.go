@@ -1,6 +1,9 @@
 package dto
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 // === AUTH resp ===
 type GetTokenResponse struct {
@@ -13,8 +16,9 @@ type GetTokenResponse struct {
 // === API resp ====
 
 type ApiResponse struct {
-	GetInHouseInquiryResponse *GetInHouseInquiryResponse `json:"getInHouseInquiryResponse,omitempty"`
 	GetBalanceResponse        *GetBalanceResponse        `json:"getBalanceResponse,omitempty"`
+	GetInHouseInquiryResponse *GetInHouseInquiryResponse `json:"getInHouseInquiryResponse,omitempty"`
+	DoPaymentResponse         *DoPaymentResponse         `json:"doPaymentResponse,omitempty"`
 
 	BadRespResponse             *BadRespResponse             `json:"Response,omitempty"`
 	BadRespGeneralErrorResponse *BadRespGeneralErrorResponse `json:"General Error Response,omitempty"`
@@ -44,6 +48,21 @@ type GetInHouseInquiryResponseParam struct {
 	AccountNumber   string `json:"accountNumber,omitempty"`
 	AccountStatus   string `json:"accountStatus,omitempty"`
 	AccountType     string `json:"accountType,omitempty"`
+}
+
+type DoPaymentResponse struct {
+	CommonResponse
+	Parameters DoPaymentResponseParam `json:"parameters,omitempty"`
+}
+
+type DoPaymentResponseParam struct {
+	CommonResponseParam
+	DebitAccountNo    int64       `json:"debitAccountNo,omitempty"`
+	CreditAccountNo   int64       `json:"creditAccountNo,omitempty"`
+	ValueAmount       int64       `json:"valueAmount,omitempty"`
+	ValueCurrency     string      `json:"valueCurrency,omitempty"`
+	BankReference     int64       `json:"bankReference,omitempty"`
+	CustomerReference json.Number `json:"customerReference,omitempty"`
 }
 
 // === BAD resp ===

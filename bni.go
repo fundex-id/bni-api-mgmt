@@ -174,6 +174,39 @@ func (b *BNI) GetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInqui
 	return dtoResp.GetInHouseInquiryResponse, nil
 }
 
+func (b *BNI) DoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto.DoPaymentResponse, error) {
+	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+
+	b.log(ctx).Info("=== DO_PAYMENT ===")
+
+	dtoReq.ClientID = b.config.ClientID
+	if err := b.setSignatureDoPayment(dtoReq); err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logReq := dto.BuildLogRequest(InHouseTransferRequest, dtoReq)
+	b.log(ctx).Infof("%+v", logReq)
+
+	dtoResp, err := b.api.postDoPayment(ctx, dtoReq)
+	if err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logResp := dto.BuildLogResponse(InHouseTransferResponse, dtoResp)
+	b.log(ctx).Infof("%+v", logResp)
+
+	if dtoResp.DoPaymentResponse == nil {
+		b.log(ctx).Error(BadResponseError)
+		return nil, BadResponseError
+	}
+
+	b.log(ctx).Info("=== END DO_PAYMENT ===")
+
+	return dtoResp.DoPaymentResponse, nil
+}
+
 // === misc func ===
 
 func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
@@ -194,6 +227,25 @@ func (b *BNI) setSignatureGetBalance(dtoReq *dto.GetBalanceRequest) error {
 
 func (b *BNI) setSignatureGetInHouseInquiry(dtoReq *dto.GetInHouseInquiryRequest) error {
 	sign, err := b.signature.Sha256WithRSA(dtoReq.ClientID + dtoReq.AccountNo)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	dtoReq.Signature = sign
+
+	return nil
+}
+
+func (b *BNI) setSignatureDoPayment(dtoReq *dto.DoPaymentRequest) error {
+	sign, err := b.signature.Sha256WithRSA(
+		dtoReq.ClientID +
+			dtoReq.CustomerReferenceNumber +
+			dtoReq.PaymentMethod +
+			dtoReq.DebitAccountNo +
+			dtoReq.CreditAccountNo +
+			dtoReq.ValueAmount +
+			dtoReq.ValueCurrency,
+	)
+
 	if err != nil {
 		return errors.Trace(err)
 	}

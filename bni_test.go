@@ -283,6 +283,46 @@ func TestBNI_GetInHouseInquiry(t *testing.T) {
 	})
 }
 
+func TestBNI_DoPayment(t *testing.T) {
+	t.Run("good case", func(t *testing.T) {
+		givenConfig := config.Config{
+			InHouseTransferPath: "/H2H/dopayment",
+			LogPath:             testLogPath,
+			SignatureConfig:     dummySignatureConfig,
+		}
+
+		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
+			givenConfig.InHouseTransferPath,
+			"testdata/get_dopayment_response.json",
+		)
+
+		dtoReq := dto.DoPaymentRequest{
+			CustomerReferenceNumber: "20170227000000000020",
+			PaymentMethod:           "0",
+			DebitAccountNo:          "113183203",
+			CreditAccountNo:         "115471119",
+			ValueDate:               "20170227000000000",
+			ValueCurrency:           "IDR",
+			ValueAmount:             "100500",
+			Remark:                  "?",
+			BeneficiaryEmailAddress: "",
+			BeneficiaryName:         "Mr.X",
+			BeneficiaryAddress1:     "Jakarta",
+			BeneficiaryAddress2:     "",
+			DestinationBankCode:     "CENAIDJAXXX",
+			ChargingModelId:         "NONE",
+		}
+
+		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
+		dtoResp, err := bni.DoPayment(ctx, &dtoReq)
+
+		util.AssertErrNil(t, err)
+		assert.NotEmpty(t, dtoResp)
+
+		testServer.Close()
+	})
+}
+
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
 	return base64.StdEncoding.EncodeToString([]byte(auth))
