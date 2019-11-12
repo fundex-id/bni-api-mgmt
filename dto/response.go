@@ -138,8 +138,8 @@ type BadRespGeneralErrorResponse struct {
 type CommonResponse struct {
 	ClientID string `json:"clientId,omitempty"`
 	// Parameters        interface{}
-	BankReference     string
-	CustomerReference string
+	BankReference     string `json:"bankReference,omitempty"`
+	CustomerReference string `json:"customerReference,omitempty"`
 }
 
 type CommonResponseParam struct {
