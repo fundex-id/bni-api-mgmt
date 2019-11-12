@@ -136,7 +136,9 @@ func TestBNI_GetBalance(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.retryablehttpClient.HTTPClient = testServer.Client()
 
-		dtoReq := dto.GetBalanceRequest{AccountNo: "115471119"}
+		dtoReq := dto.GetBalanceRequest{
+			AccountNo: "115471119",
+		}
 
 		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
 		dtoResp, err := bni.GetBalance(ctx, &dtoReq)
@@ -176,7 +178,9 @@ func TestBNI_GetBalance(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.retryablehttpClient.HTTPClient = testServer.Client()
 
-		dtoReq := dto.GetBalanceRequest{AccountNo: "115471119"}
+		dtoReq := dto.GetBalanceRequest{
+			AccountNo: "115471119",
+		}
 
 		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
 		dtoResp, err := bni.GetBalance(ctx, &dtoReq)
@@ -239,7 +243,9 @@ func TestBNI_GetBalance(t *testing.T) {
 		bni := New(givenConfig)
 		bni.api.retryablehttpClient.HTTPClient = testServer.Client()
 
-		dtoReq := dto.GetBalanceRequest{AccountNo: "115471119"}
+		dtoReq := dto.GetBalanceRequest{
+			AccountNo: "115471119",
+		}
 
 		firstReqID := shortuuid.New()
 		ctx := bniCtx.WithHTTPReqID(context.Background(), firstReqID)
@@ -248,7 +254,9 @@ func TestBNI_GetBalance(t *testing.T) {
 		util.AssertErrNil(t, err)
 		assert.NotEmpty(t, dtoResp)
 
-		dtoReq = dto.GetBalanceRequest{AccountNo: "225471120"}
+		dtoReq = dto.GetBalanceRequest{
+			AccountNo: "225471120",
+		}
 
 		secondReqID := shortuuid.New()
 		ctx = bniCtx.WithHTTPReqID(context.Background(), secondReqID)
@@ -269,9 +277,14 @@ func TestBNI_GetInHouseInquiry(t *testing.T) {
 			SignatureConfig:    dummySignatureConfig,
 		}
 
-		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig, givenConfig.InHouseInquiryPath, "testdata/get_inhouseinquiry_response.json")
+		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
+			givenConfig.InHouseInquiryPath,
+			"testdata/get_inhouseinquiry_response.json",
+		)
 
-		dtoReq := dto.GetInHouseInquiryRequest{AccountNo: "115471119"}
+		dtoReq := dto.GetInHouseInquiryRequest{
+			AccountNo: "115471119",
+		}
 
 		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
 		dtoResp, err := bni.GetInHouseInquiry(ctx, &dtoReq)
