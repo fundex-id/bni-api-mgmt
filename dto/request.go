@@ -17,23 +17,23 @@ type GetInHouseInquiryRequest struct {
 
 type DoPaymentRequest struct {
 	CommonRequest
-	CustomerReferenceNumber string
-	PaymentMethod           string
-	DebitAccountNo          string
-	CreditAccountNo         string
-	ValueDate               string
-	ValueCurrency           string
-	ValueAmount             string
-	Remark                  string
-	BeneficiaryEmailAddress string
-	DestinationBankCode     string
-	BeneficiaryName         string
-	BeneficiaryAddress1     string
-	BeneficiaryAddress2     string
-	ChargingModelId         string
+	CustomerReferenceNumber string `json:"customerReferenceNumber,omitempty"`
+	PaymentMethod           string `json:"paymentMethod,omitempty"`
+	DebitAccountNo          string `json:"debitAccountNo,omitempty"`
+	CreditAccountNo         string `json:"creditAccountNo,omitempty"`
+	ValueDate               string `json:"valueDate,omitempty"`
+	ValueCurrency           string `json:"valueCurrency,omitempty"`
+	ValueAmount             string `json:"valueAmount,omitempty"`
+	Remark                  string `json:"remark,omitempty"`
+	BeneficiaryEmailAddress string `json:"beneficiaryEmailAddress,omitempty"`
+	DestinationBankCode     string `json:"destinationBankCode,omitempty"`
+	BeneficiaryName         string `json:"beneficiaryName,omitempty"`
+	BeneficiaryAddress1     string `json:"beneficiaryAddress1,omitempty"`
+	BeneficiaryAddress2     string `json:"beneficiaryAddress2,omitempty"`
+	ChargingModelId         string `json:"chargingModelId,omitempty"`
 }
 
 type GetPaymentStatusRequest struct {
 	CommonRequest
-	CustomerReferenceNumber string
+	CustomerReferenceNumber string `json:"customerReferenceNumber,omitempty"`
 }
