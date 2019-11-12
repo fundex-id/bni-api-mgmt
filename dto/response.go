@@ -16,10 +16,11 @@ type GetTokenResponse struct {
 // === API resp ====
 
 type ApiResponse struct {
-	GetBalanceResponse        *GetBalanceResponse        `json:"getBalanceResponse,omitempty"`
-	GetInHouseInquiryResponse *GetInHouseInquiryResponse `json:"getInHouseInquiryResponse,omitempty"`
-	DoPaymentResponse         *DoPaymentResponse         `json:"doPaymentResponse,omitempty"`
-	GetPaymentStatusResponse  *GetPaymentStatusResponse  `json:"getPaymentStatusResponse,omitempty"`
+	GetBalanceResponse          *GetBalanceResponse          `json:"getBalanceResponse,omitempty"`
+	GetInHouseInquiryResponse   *GetInHouseInquiryResponse   `json:"getInHouseInquiryResponse,omitempty"`
+	DoPaymentResponse           *DoPaymentResponse           `json:"doPaymentResponse,omitempty"`
+	GetPaymentStatusResponse    *GetPaymentStatusResponse    `json:"getPaymentStatusResponse,omitempty"`
+	GetInterBankInquiryResponse *GetInterBankInquiryResponse `json:"getInterBankInquiryResponse,omitempty"`
 
 	BadRespResponse             *BadRespResponse             `json:"Response,omitempty"`
 	BadRespGeneralErrorResponse *BadRespGeneralErrorResponse `json:"General Error Response,omitempty"`
@@ -90,6 +91,19 @@ type GetPaymentStatusResponseParam struct {
 
 	BankReference     int64       `json:"bankReference,omitempty"`
 	CustomerReference json.Number `json:"customerReference,omitempty"`
+}
+
+type GetInterBankInquiryResponse struct {
+	CommonResponse
+	Parameters GetInterBankInquiryResponseParam `json:"parameters,omitempty"`
+}
+
+type GetInterBankInquiryResponseParam struct {
+	CommonResponseParam
+	DestinationAccountNum  string      `json:"destinationAccountNum,omitempty"`
+	DestinationAccountName string      `json:"destinationAccountName,omitempty"`
+	DestinationBankName    string      `json:"destinationBankName,omitempty"`
+	RetrievalReffNum       json.Number `json:"retrievalReffNum,omitempty"`
 }
 
 // === BAD resp ===

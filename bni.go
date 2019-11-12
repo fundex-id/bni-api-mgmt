@@ -240,6 +240,39 @@ func (b *BNI) GetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatus
 	return dtoResp.GetPaymentStatusResponse, nil
 }
 
+func (b *BNI) GetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInterBankInquiryRequest) (*dto.GetInterBankInquiryResponse, error) {
+	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+
+	b.log(ctx).Info("=== GET_INTER_BANK_INQUIRY ===")
+
+	dtoReq.ClientID = b.config.ClientID
+	if err := b.setSignatureGetInterBankInquiry(dtoReq); err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logReq := dto.BuildLogRequest(InterBankInquiryRequest, dtoReq)
+	b.log(ctx).Infof("%+v", logReq)
+
+	dtoResp, err := b.api.postGetInterBankInquiry(ctx, dtoReq)
+	if err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logResp := dto.BuildLogResponse(InterBankInquiryResponse, dtoResp)
+	b.log(ctx).Infof("%+v", logResp)
+
+	if dtoResp.GetInterBankInquiryResponse == nil {
+		b.log(ctx).Error(BadResponseError)
+		return nil, BadResponseError
+	}
+
+	b.log(ctx).Info("=== END GET_INTER_BANK_INQUIRY ===")
+
+	return dtoResp.GetInterBankInquiryResponse, nil
+}
+
 // === misc func ===
 
 func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
@@ -291,6 +324,22 @@ func (b *BNI) setSignatureGetPaymentStatus(dtoReq *dto.GetPaymentStatusRequest) 
 	sign, err := b.signature.Sha256WithRSA(
 		dtoReq.ClientID +
 			dtoReq.CustomerReferenceNumber,
+	)
+
+	if err != nil {
+		return errors.Trace(err)
+	}
+	dtoReq.Signature = sign
+
+	return nil
+}
+
+func (b *BNI) setSignatureGetInterBankInquiry(dtoReq *dto.GetInterBankInquiryRequest) error {
+	sign, err := b.signature.Sha256WithRSA(
+		dtoReq.ClientID +
+			dtoReq.DestinationBankCode +
+			dtoReq.DestinationAccountNum +
+			dtoReq.AccountNum,
 	)
 
 	if err != nil {

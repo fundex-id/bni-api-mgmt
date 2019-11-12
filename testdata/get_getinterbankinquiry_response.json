@@ -1,0 +1,14 @@
+{
+    "getInterbankInquiryResponse": {
+        "clientId": "BNISERVICE",
+        "parameters": {
+            "responseCode": "0001",
+            "responseMessage": "Request has been processed successfully",
+            "responseTimestamp": "2017-05-08T14:57:51.963Z",
+            "destinationAccountNum": "113183203",
+            "destinationAccountName": "DUMMY NAME",
+            "destinationBankName": "BCA",
+            "retrievalReffNum": 100000000097
+        }
+    }
+}

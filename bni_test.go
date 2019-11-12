@@ -363,6 +363,36 @@ func TestBNI_GetPaymentStatus(t *testing.T) {
 	})
 }
 
+func TestBNI_GetInterBankInquiry(t *testing.T) {
+	t.Run("good case", func(t *testing.T) {
+		givenConfig := config.Config{
+			InterBankInquiryPath: "/H2H/getinterbankinquiry",
+			LogPath:              testLogPath,
+			SignatureConfig:      dummySignatureConfig,
+		}
+
+		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
+			givenConfig.InterBankInquiryPath,
+			"testdata/get_getinterbankinquiry_response.json",
+		)
+
+		dtoReq := dto.GetInterBankInquiryRequest{
+			CustomerReferenceNumber: "20170227000000000021",
+			AccountNum:              "113183203",
+			DestinationBankCode:     "014",
+			DestinationAccountNum:   "3333333333",
+		}
+
+		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
+		dtoResp, err := bni.GetInterBankInquiry(ctx, &dtoReq)
+
+		util.AssertErrNil(t, err)
+		assert.NotEmpty(t, dtoResp)
+
+		testServer.Close()
+	})
+}
+
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
 	return base64.StdEncoding.EncodeToString([]byte(auth))

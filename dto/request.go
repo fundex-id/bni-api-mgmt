@@ -37,3 +37,11 @@ type GetPaymentStatusRequest struct {
 	CommonRequest
 	CustomerReferenceNumber string `json:"customerReferenceNumber,omitempty"`
 }
+
+type GetInterBankInquiryRequest struct {
+	CommonRequest
+	CustomerReferenceNumber string `json:"customerReferenceNumber,omitempty"`
+	AccountNum              string `json:"accountNum,omitempty"`
+	DestinationBankCode     string `json:"destinationBankCode,omitempty"`
+	DestinationAccountNum   string `json:"destinationAccountNum,omitempty"`
+}
