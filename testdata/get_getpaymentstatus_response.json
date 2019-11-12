@@ -1,0 +1,22 @@
+{
+    "getPaymentStatusResponse": {
+        "clientId": "BNISERVICE",
+        "parameters": {
+            "responseCode": "0001",
+            "responseMessage": "Request has been processed successfully",
+            "responseTimestamp": "2017-02-27T15:04:00.927Z",
+            "previousResponse": {
+                "transactionStatus": "Y",
+                "previousResponseCode": null,
+                "previousResponseMessage": null,
+                "previousResponseTimestamp": "2017-02-27T07:47:14.640Z",
+                "debitAccountNo": 113183203,
+                "creditAccountNo": 115471119,
+                "valueAmount": 100500,
+                "valueCurrency": "IDR"
+            },
+            "bankReference": 953403,
+            "customerReference": 20170227000000000020
+        }
+    }
+}

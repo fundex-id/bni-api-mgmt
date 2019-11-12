@@ -207,6 +207,39 @@ func (b *BNI) DoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto
 	return dtoResp.DoPaymentResponse, nil
 }
 
+func (b *BNI) GetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatusRequest) (*dto.GetPaymentStatusResponse, error) {
+	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+
+	b.log(ctx).Info("=== GET_PAYMENT_STATUS ===")
+
+	dtoReq.ClientID = b.config.ClientID
+	if err := b.setSignatureGetPaymentStatus(dtoReq); err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logReq := dto.BuildLogRequest(PaymentStatusRequest, dtoReq)
+	b.log(ctx).Infof("%+v", logReq)
+
+	dtoResp, err := b.api.postGetPaymentStatus(ctx, dtoReq)
+	if err != nil {
+		b.log(ctx).Error(errors.Details(err))
+		return nil, errors.Trace(err)
+	}
+
+	logResp := dto.BuildLogResponse(PaymentStatusResponse, dtoResp)
+	b.log(ctx).Infof("%+v", logResp)
+
+	if dtoResp.GetPaymentStatusResponse == nil {
+		b.log(ctx).Error(BadResponseError)
+		return nil, BadResponseError
+	}
+
+	b.log(ctx).Info("=== END GET_PAYMENT_STATUS ===")
+
+	return dtoResp.GetPaymentStatusResponse, nil
+}
+
 // === misc func ===
 
 func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
@@ -244,6 +277,20 @@ func (b *BNI) setSignatureDoPayment(dtoReq *dto.DoPaymentRequest) error {
 			dtoReq.CreditAccountNo +
 			dtoReq.ValueAmount +
 			dtoReq.ValueCurrency,
+	)
+
+	if err != nil {
+		return errors.Trace(err)
+	}
+	dtoReq.Signature = sign
+
+	return nil
+}
+
+func (b *BNI) setSignatureGetPaymentStatus(dtoReq *dto.GetPaymentStatusRequest) error {
+	sign, err := b.signature.Sha256WithRSA(
+		dtoReq.ClientID +
+			dtoReq.CustomerReferenceNumber,
 	)
 
 	if err != nil {

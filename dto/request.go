@@ -32,3 +32,8 @@ type DoPaymentRequest struct {
 	BeneficiaryAddress2     string
 	ChargingModelId         string
 }
+
+type GetPaymentStatusRequest struct {
+	CommonRequest
+	CustomerReferenceNumber string
+}

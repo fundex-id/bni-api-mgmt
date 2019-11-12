@@ -9,6 +9,7 @@ type Config struct {
 	BalancePath           string
 	InHouseInquiryPath    string
 	InterBankInquiryPath  string
+	PaymentStatusPath     string
 	InHouseTransferPath   string
 	InterBankTransferPath string
 	LogPath               string

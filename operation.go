@@ -13,4 +13,6 @@ const (
 	InHouseTransferResponse   = "IN_HOUSE_TRANSFER_RESPONSE"
 	InterBankTransferRequest  = "INTER_BANK_TRANSFER_REQUEST"
 	InterBankTransferResponse = "INTER_BANK_TRANSFER_RESPONSE"
+	PaymentStatusRequest      = "PAYMENT_STATUS_REQUEST"
+	PaymentStatusResponse     = "PAYMENT_STATUS_RESPONSE"
 )

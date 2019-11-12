@@ -123,6 +123,15 @@ func (api *API) postDoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest)
 	return api.postToAPI(ctx, api.config.InHouseTransferPath, jsonReq)
 }
 
+func (api *API) postGetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatusRequest) (*dto.ApiResponse, error) {
+	jsonReq, err := json.Marshal(dtoReq)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	return api.postToAPI(ctx, api.config.PaymentStatusPath, jsonReq)
+}
+
 // Generic POST request to API
 func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}

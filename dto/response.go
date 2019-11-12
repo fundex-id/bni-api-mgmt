@@ -19,6 +19,7 @@ type ApiResponse struct {
 	GetBalanceResponse        *GetBalanceResponse        `json:"getBalanceResponse,omitempty"`
 	GetInHouseInquiryResponse *GetInHouseInquiryResponse `json:"getInHouseInquiryResponse,omitempty"`
 	DoPaymentResponse         *DoPaymentResponse         `json:"doPaymentResponse,omitempty"`
+	GetPaymentStatusResponse  *GetPaymentStatusResponse  `json:"getPaymentStatusResponse,omitempty"`
 
 	BadRespResponse             *BadRespResponse             `json:"Response,omitempty"`
 	BadRespGeneralErrorResponse *BadRespGeneralErrorResponse `json:"General Error Response,omitempty"`
@@ -61,6 +62,32 @@ type DoPaymentResponseParam struct {
 	CreditAccountNo   int64       `json:"creditAccountNo,omitempty"`
 	ValueAmount       int64       `json:"valueAmount,omitempty"`
 	ValueCurrency     string      `json:"valueCurrency,omitempty"`
+	BankReference     int64       `json:"bankReference,omitempty"`
+	CustomerReference json.Number `json:"customerReference,omitempty"`
+}
+
+type GetPaymentStatusResponse struct {
+	CommonResponse
+	Parameters GetPaymentStatusResponseParam `json:"parameters,omitempty"`
+}
+
+type GetPaymentStatusResponseParamPreviousResponse struct {
+	TransactionStatus         string `json:"transactionStatus,omitempty"`
+	PreviousResponseCode      string `json:"previousResponseCode,omitempty"`
+	PreviousResponseMessage   string `json:"previousResponseMessage,omitempty"`
+	PreviousResponseTimestamp string `json:"previousResponseTimestamp,omitempty"`
+
+	DebitAccountNo  int64  `json:"debitAccountNo,omitempty"`
+	CreditAccountNo int64  `json:"creditAccountNo,omitempty"`
+	ValueAmount     int64  `json:"valueAmount,omitempty"`
+	ValueCurrency   string `json:"valueCurrency,omitempty"`
+}
+
+type GetPaymentStatusResponseParam struct {
+	CommonResponseParam
+
+	PreviousResponse GetPaymentStatusResponseParamPreviousResponse `json:"previousResponse,omitempty"`
+
 	BankReference     int64       `json:"bankReference,omitempty"`
 	CustomerReference json.Number `json:"customerReference,omitempty"`
 }

@@ -336,6 +336,33 @@ func TestBNI_DoPayment(t *testing.T) {
 	})
 }
 
+func TestBNI_GetPaymentStatus(t *testing.T) {
+	t.Run("good case", func(t *testing.T) {
+		givenConfig := config.Config{
+			PaymentStatusPath: "/H2H/getpaymentstatus",
+			LogPath:           testLogPath,
+			SignatureConfig:   dummySignatureConfig,
+		}
+
+		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
+			givenConfig.PaymentStatusPath,
+			"testdata/get_getpaymentstatus_response.json",
+		)
+
+		dtoReq := dto.GetPaymentStatusRequest{
+			CustomerReferenceNumber: "20170227000000000020",
+		}
+
+		ctx := bniCtx.WithHTTPReqID(context.Background(), shortuuid.New())
+		dtoResp, err := bni.GetPaymentStatus(ctx, &dtoReq)
+
+		util.AssertErrNil(t, err)
+		assert.NotEmpty(t, dtoResp)
+
+		testServer.Close()
+	})
+}
+
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
 	return base64.StdEncoding.EncodeToString([]byte(auth))
