@@ -375,8 +375,6 @@ func getJSON(filePath string, obj interface{}) {
 	}
 
 	file, err := os.Open(absPath)
-	defer file.Close()
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -391,6 +389,10 @@ func getJSON(filePath string, obj interface{}) {
 		log.Fatal(err)
 	}
 
+	err = file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func buildBNIAndMockServerGoodResponse(t *testing.T, givenConfig config.Config, assertPath string, jsonPathTestData string) (bni *BNI, testServer *httptest.Server) {
