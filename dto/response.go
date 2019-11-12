@@ -21,6 +21,7 @@ type ApiResponse struct {
 	DoPaymentResponse           *DoPaymentResponse           `json:"doPaymentResponse,omitempty"`
 	GetPaymentStatusResponse    *GetPaymentStatusResponse    `json:"getPaymentStatusResponse,omitempty"`
 	GetInterBankInquiryResponse *GetInterBankInquiryResponse `json:"getInterBankInquiryResponse,omitempty"`
+	GetInterBankPaymentResponse *GetInterBankPaymentResponse `json:"getInterBankPaymentResponse,omitempty"`
 
 	BadRespResponse             *BadRespResponse             `json:"Response,omitempty"`
 	BadRespGeneralErrorResponse *BadRespGeneralErrorResponse `json:"General Error Response,omitempty"`
@@ -104,6 +105,20 @@ type GetInterBankInquiryResponseParam struct {
 	DestinationAccountName string      `json:"destinationAccountName,omitempty"`
 	DestinationBankName    string      `json:"destinationBankName,omitempty"`
 	RetrievalReffNum       json.Number `json:"retrievalReffNum,omitempty"`
+}
+
+type GetInterBankPaymentResponse struct {
+	CommonResponse
+	Parameters GetInterBankPaymentResponseParam `json:"parameters,omitempty"`
+}
+
+type GetInterBankPaymentResponseParam struct {
+	CommonResponseParam
+	DestinationAccountNum  json.Number `json:"destinationAccountNum,omitempty"`
+	DestinationAccountName string      `json:"destinationAccountName,omitempty"`
+	DestinationBankName    string      `json:"destinationBankName,omitempty"`
+	CustomerReffNum        json.Number `json:"customerReffNum,omitempty"`
+	AccountName            string      `json:"accountName,omitempty"`
 }
 
 // === BAD resp ===

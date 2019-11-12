@@ -45,3 +45,15 @@ type GetInterBankInquiryRequest struct {
 	DestinationBankCode     string `json:"destinationBankCode,omitempty"`
 	DestinationAccountNum   string `json:"destinationAccountNum,omitempty"`
 }
+
+type GetInterBankPaymentRequest struct {
+	CommonRequest
+	CustomerReferenceNumber string `json:"customerReferenceNumber,omitempty"`
+	Amount                  string `json:"amount,omitempty"`
+	DestinationAccountNum   string `json:"destinationAccountNum,omitempty"`
+	DestinationAccountName  string `json:"destinationAccountName,omitempty"`
+	DestinationBankCode     string `json:"destinationBankCode,omitempty"`
+	DestinationBankName     string `json:"destinationBankName,omitempty"`
+	AccountNum              string `json:"accountNum,omitempty"`
+	RetrievalReffNum        string `json:"retrievalReffNum,omitempty"`
+}

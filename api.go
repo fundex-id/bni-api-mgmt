@@ -141,6 +141,15 @@ func (api *API) postGetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInte
 	return api.postToAPI(ctx, api.config.InterBankInquiryPath, jsonReq)
 }
 
+func (api *API) postGetInterBankPayment(ctx context.Context, dtoReq *dto.GetInterBankPaymentRequest) (*dto.ApiResponse, error) {
+	jsonReq, err := json.Marshal(dtoReq)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	return api.postToAPI(ctx, api.config.InterBankTransferPath, jsonReq)
+}
+
 // Generic POST request to API
 func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}

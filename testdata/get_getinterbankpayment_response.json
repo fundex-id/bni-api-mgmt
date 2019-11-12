@@ -1,0 +1,14 @@
+{
+    "getInterbankPaymentResponse": {
+        "clientId": "BNISERVICE",
+        "parameters": {
+            "responseCode": "0001",
+            "responseMessage": "Request has been processed successfully",
+            "responseTimestamp": "2017-03-01T11:45:02.062Z",
+            "destinationAccountNum": 3333333333,
+            "destinationAccountName": "BENEFICIARY NAME 1 UNTIL HERE1BENEFICIARY NAME 2(OPT) UNTIL HERE2",
+            "customerReffNum": 100000000011,
+            "accountName": "BPK JONOMADE MADEMADEMADEMADE"
+        }
+    }
+}
