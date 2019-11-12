@@ -131,14 +131,15 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 	logResp := dto.BuildLogResponse(BalanceResponse, dtoResp)
 	b.log(ctx).Infof("%+v", logResp)
 
-	if dtoResp.GetBalanceResponse == nil {
+	dtoParamResp := dtoResp.GetBalanceResponse
+	if dtoParamResp == nil {
 		b.log(ctx).Error(BadResponseError)
 		return nil, BadResponseError
 	}
 
 	b.log(ctx).Info("=== END GET_BALANCE ===")
 
-	return dtoResp.GetBalanceResponse, nil
+	return dtoParamResp, nil
 }
 
 func (b *BNI) GetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInquiryRequest) (*dto.GetInHouseInquiryResponse, error) {
@@ -164,14 +165,15 @@ func (b *BNI) GetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInqui
 	logResp := dto.BuildLogResponse(InHouseInquiryResponse, dtoResp)
 	b.log(ctx).Infof("%+v", logResp)
 
-	if dtoResp.GetInHouseInquiryResponse == nil {
+	dtoParamResp := dtoResp.GetInHouseInquiryResponse
+	if dtoParamResp == nil {
 		b.log(ctx).Error(BadResponseError)
 		return nil, BadResponseError
 	}
 
 	b.log(ctx).Info("=== END GET_IN_HOUSE_INQUIRY ===")
 
-	return dtoResp.GetInHouseInquiryResponse, nil
+	return dtoParamResp, nil
 }
 
 func (b *BNI) DoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto.DoPaymentResponse, error) {
@@ -197,14 +199,15 @@ func (b *BNI) DoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto
 	logResp := dto.BuildLogResponse(InHouseTransferResponse, dtoResp)
 	b.log(ctx).Infof("%+v", logResp)
 
-	if dtoResp.DoPaymentResponse == nil {
+	dtoParamResp := dtoResp.DoPaymentResponse
+	if dtoParamResp == nil {
 		b.log(ctx).Error(BadResponseError)
 		return nil, BadResponseError
 	}
 
 	b.log(ctx).Info("=== END DO_PAYMENT ===")
 
-	return dtoResp.DoPaymentResponse, nil
+	return dtoParamResp, nil
 }
 
 func (b *BNI) GetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatusRequest) (*dto.GetPaymentStatusResponse, error) {
@@ -230,14 +233,15 @@ func (b *BNI) GetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatus
 	logResp := dto.BuildLogResponse(PaymentStatusResponse, dtoResp)
 	b.log(ctx).Infof("%+v", logResp)
 
-	if dtoResp.GetPaymentStatusResponse == nil {
+	dtoParamResp := dtoResp.GetPaymentStatusResponse
+	if dtoParamResp == nil {
 		b.log(ctx).Error(BadResponseError)
 		return nil, BadResponseError
 	}
 
 	b.log(ctx).Info("=== END GET_PAYMENT_STATUS ===")
 
-	return dtoResp.GetPaymentStatusResponse, nil
+	return dtoParamResp, nil
 }
 
 func (b *BNI) GetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInterBankInquiryRequest) (*dto.GetInterBankInquiryResponse, error) {
@@ -263,14 +267,15 @@ func (b *BNI) GetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInterBankI
 	logResp := dto.BuildLogResponse(InterBankInquiryResponse, dtoResp)
 	b.log(ctx).Infof("%+v", logResp)
 
-	if dtoResp.GetInterBankInquiryResponse == nil {
+	dtoParamResp := dtoResp.GetInterBankInquiryResponse
+	if dtoParamResp == nil {
 		b.log(ctx).Error(BadResponseError)
 		return nil, BadResponseError
 	}
 
 	b.log(ctx).Info("=== END GET_INTER_BANK_INQUIRY ===")
 
-	return dtoResp.GetInterBankInquiryResponse, nil
+	return dtoParamResp, nil
 }
 
 // === misc func ===
