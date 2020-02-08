@@ -2,7 +2,6 @@ package bni
 
 import (
 	"context"
-	"net/http"
 	"os"
 
 	"github.com/fundex-id/bni-api-mgmt/config"
@@ -10,7 +9,6 @@ import (
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/fundex-id/bni-api-mgmt/signature"
-	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -51,27 +49,7 @@ func New(config config.Config) *BNI {
 		// return core
 	}))
 
-	retryablehttpClient := retryablehttp.NewClient()
-	retryablehttpClient.RetryMax = 1
-	retryablehttpClient.CheckRetry = bni.retryPolicy
-
 	return &bni
-}
-
-func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (bool, error) {
-	// do not retry on context.Canceled or context.DeadlineExceeded
-	if ctx.Err() != nil {
-		return false, ctx.Err()
-	}
-
-	if resp.StatusCode == http.StatusUnauthorized {
-		b.log(ctx).Infof("Retry to auth. Got resp (code: %d, status: %s). Prev err: %+v", resp.StatusCode, resp.Status, err)
-		_, errAuth := b.DoAuthentication(ctx)
-
-		return true, errAuth
-	}
-
-	return false, nil
 }
 
 // === APi based on spec ===
