@@ -225,13 +225,7 @@ func (api *API) postToAPIWithRetry(ctx context.Context, path string, bodyReqPayl
 
 func (api *API) retryDecision(ctx context.Context) func(err error) bool {
 	return func(err error) bool {
-		if err == ErrUnauthorized {
-			api.log(ctx).Infof("[Retry] === START AUTH ===")
-			api.doAuthentication(ctx)
-			api.log(ctx).Infof("[Retry] === END AUTH ===")
-			return true
-		}
-		return false
+		return err == ErrUnauthorized
 	}
 }
 
@@ -240,7 +234,9 @@ func (api *API) retryOptions(ctx context.Context) []retry.Option {
 		retry.Attempts(2),
 		retry.RetryIf(api.retryDecision(ctx)),
 		retry.OnRetry(func(n uint, err error) {
-			api.log(ctx).Infof("[Retry] attempts: %d err: %+v", n, err)
+			api.log(ctx).Infof("[Retry] === START AUTH === [Attempts: %d Err: %+v]", n, err)
+			api.doAuthentication(ctx)
+			api.log(ctx).Infof("[Retry] === END AUTH ===")
 		}),
 	}
 }
