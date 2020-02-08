@@ -155,7 +155,7 @@ func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byt
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}
 	urlTarget, err := buildURL(api.config.BNIServer, path, urlQuery)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	req, err := retryablehttp.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(bodyReqPayload))
