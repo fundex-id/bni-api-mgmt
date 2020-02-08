@@ -55,6 +55,8 @@ func New(config config.Config) *BNI {
 // === APi based on spec ===
 
 func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, error) {
+	ctx = bniCtx.WithBNISessID(ctx, b.api.bniSessID)
+
 	b.log(ctx).Info("=== DO_AUTH ===")
 
 	dtoResp, err := b.api.doAuthentication(ctx)
