@@ -3,6 +3,7 @@ module github.com/fundex-id/bni-api-mgmt
 go 1.13
 
 require (
+	github.com/avast/retry-go v2.5.0+incompatible
 	github.com/google/uuid v1.0.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-retryablehttp v0.6.3
