@@ -55,8 +55,6 @@ func New(config config.Config) *BNI {
 	retryablehttpClient.RetryMax = 1
 	retryablehttpClient.CheckRetry = bni.retryPolicy
 
-	bni.api.retryablehttpClient = retryablehttpClient
-
 	return &bni
 }
 
@@ -81,13 +79,11 @@ func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (
 func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, error) {
 	b.log(ctx).Info("=== DO_AUTH ===")
 
-	dtoResp, err := b.api.postGetToken(ctx)
+	dtoResp, err := b.api.doAuthentication(ctx)
 	if err != nil {
 		b.log(ctx).Error(errors.Details(err))
 		return nil, errors.Trace(err)
 	}
-
-	b.api.setAccessToken(dtoResp.AccessToken)
 
 	b.log(ctx).Info("=== END DO_AUTH ===")
 

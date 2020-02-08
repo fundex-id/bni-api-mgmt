@@ -25,6 +25,8 @@ type ApiResponse struct {
 
 	BadRespResponse             *BadRespResponse             `json:"Response,omitempty"`
 	BadRespGeneralErrorResponse *BadRespGeneralErrorResponse `json:"General Error Response,omitempty"`
+
+	StatusCode int
 }
 
 type GetBalanceResponse struct {

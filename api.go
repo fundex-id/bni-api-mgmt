@@ -11,21 +11,22 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/avast/retry-go"
 	"github.com/fundex-id/bni-api-mgmt/config"
 	bniCtx "github.com/fundex-id/bni-api-mgmt/context"
 	"github.com/fundex-id/bni-api-mgmt/dto"
 	"github.com/fundex-id/bni-api-mgmt/logger"
 	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
 	"github.com/lithammer/shortuuid"
 	"go.uber.org/zap"
 )
 
+var ErrUnauthorized = errors.New("Err StatusUnauthorized")
+
 type API struct {
-	config              config.Config
-	httpClient          *http.Client // for postGetToken only
-	retryablehttpClient *retryablehttp.Client
+	config     config.Config
+	httpClient *http.Client // for postGetToken only
 
 	mutex       sync.Mutex
 	accessToken string
@@ -33,13 +34,9 @@ type API struct {
 }
 
 func newApi(config config.Config) *API {
-
 	httpClient := cleanhttp.DefaultPooledClient()
-	retryablehttpClient := retryablehttp.NewClient()
-
 	api := API{config: config,
-		httpClient:          httpClient,
-		retryablehttpClient: retryablehttpClient,
+		httpClient: httpClient,
 	}
 
 	return &api
@@ -97,13 +94,22 @@ func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error)
 	return &dtoResp, nil
 }
 
+func (api *API) doAuthentication(ctx context.Context) (*dto.GetTokenResponse, error) {
+	dtoResp, err := api.postGetToken(ctx)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	api.setAccessToken(dtoResp.AccessToken)
+	return dtoResp, nil
+}
+
 func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.ApiResponse, error) {
 	jsonReq, err := json.Marshal(dtoReq)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPI(ctx, api.config.BalancePath, jsonReq)
+	return api.postToAPIWithRetry(ctx, api.config.BalancePath, jsonReq)
 }
 
 func (api *API) postGetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInquiryRequest) (*dto.ApiResponse, error) {
@@ -112,7 +118,7 @@ func (api *API) postGetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHous
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPI(ctx, api.config.InHouseInquiryPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, api.config.InHouseInquiryPath, jsonReq)
 }
 
 func (api *API) postDoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto.ApiResponse, error) {
@@ -121,7 +127,7 @@ func (api *API) postDoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest)
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPI(ctx, api.config.InHouseTransferPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, api.config.InHouseTransferPath, jsonReq)
 }
 
 func (api *API) postGetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatusRequest) (*dto.ApiResponse, error) {
@@ -130,7 +136,7 @@ func (api *API) postGetPaymentStatus(ctx context.Context, dtoReq *dto.GetPayment
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPI(ctx, api.config.PaymentStatusPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, api.config.PaymentStatusPath, jsonReq)
 }
 
 func (api *API) postGetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInterBankInquiryRequest) (*dto.ApiResponse, error) {
@@ -139,7 +145,7 @@ func (api *API) postGetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInte
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPI(ctx, api.config.InterBankInquiryPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, api.config.InterBankInquiryPath, jsonReq)
 }
 
 func (api *API) postGetInterBankPayment(ctx context.Context, dtoReq *dto.GetInterBankPaymentRequest) (*dto.ApiResponse, error) {
@@ -148,34 +154,36 @@ func (api *API) postGetInterBankPayment(ctx context.Context, dtoReq *dto.GetInte
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPI(ctx, api.config.InterBankTransferPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, api.config.InterBankTransferPath, jsonReq)
 }
 
 // Generic POST request to API
-func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
+func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byte) (dtoResp dto.ApiResponse, err error) {
 	urlQuery := url.Values{"access_token": []string{api.accessToken}}
 	urlTarget, err := buildURL(api.config.BNIServer, path, urlQuery)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return dtoResp, errors.Trace(err)
 	}
 
-	req, err := retryablehttp.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(bodyReqPayload))
+	req, err := http.NewRequest(http.MethodPost, urlTarget, bytes.NewBuffer(bodyReqPayload))
 	if err != nil {
-		return nil, errors.Trace(err)
+		return dtoResp, errors.Trace(err)
 	}
 	req = req.WithContext(ctx)
 
 	req.Header.Set("content-type", "application/json")
 
-	resp, err := api.retryablehttpClient.Do(req)
+	resp, err := api.httpClient.Do(req)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return dtoResp, errors.Trace(err)
 	}
 	defer resp.Body.Close()
 
+	dtoResp.StatusCode = resp.StatusCode
+
 	bodyRespBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Trace(err)
+		return dtoResp, errors.Trace(err)
 	}
 
 	api.log(ctx).Info(resp.StatusCode)
@@ -183,14 +191,58 @@ func (api *API) postToAPI(ctx context.Context, path string, bodyReqPayload []byt
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyRespBytes))
 
-	var jsonResp dto.ApiResponse
-	err = json.NewDecoder(resp.Body).Decode(&jsonResp)
+	err = json.NewDecoder(resp.Body).Decode(&dtoResp)
+
+	if err != nil {
+		return dtoResp, errors.Trace(err)
+	}
+
+	return dtoResp, nil
+}
+
+func (api *API) postToAPIWithRetry(ctx context.Context, path string, bodyReqPayload []byte) (*dto.ApiResponse, error) {
+	var dtoResp dto.ApiResponse
+	var err error
+
+	retryOpts := api.retryOptions(ctx)
+	err = retry.Do(func() error {
+		dtoResp, err = api.postToAPI(ctx, path, bodyReqPayload)
+		if dtoResp.StatusCode == http.StatusUnauthorized {
+			return ErrUnauthorized
+		}
+		if err != nil {
+			return errors.Trace(err)
+		}
+		return nil
+	}, retryOpts...)
 
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
 
-	return &jsonResp, nil
+	return &dtoResp, nil
+}
+
+func (api *API) retryDecision(ctx context.Context) func(err error) bool {
+	return func(err error) bool {
+		if err == ErrUnauthorized {
+			api.log(ctx).Infof("[Retry] === START AUTH ===")
+			api.doAuthentication(ctx)
+			api.log(ctx).Infof("[Retry] === END AUTH ===")
+			return true
+		}
+		return false
+	}
+}
+
+func (api *API) retryOptions(ctx context.Context) []retry.Option {
+	return []retry.Option{
+		retry.Attempts(2),
+		retry.RetryIf(api.retryDecision(ctx)),
+		retry.OnRetry(func(n uint, err error) {
+			api.log(ctx).Infof("[Retry] attempts: %d err: %+v", n, err)
+		}),
+	}
 }
 
 // === misc func ===

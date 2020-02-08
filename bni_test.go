@@ -131,7 +131,7 @@ func TestBNI_GetBalance(t *testing.T) {
 		givenConfig.BNIServer = testServer.URL
 
 		bni := New(givenConfig)
-		bni.api.retryablehttpClient.HTTPClient = testServer.Client()
+		bni.api.httpClient = testServer.Client()
 
 		dtoReq := dto.GetBalanceRequest{
 			AccountNo: "115471119",
@@ -172,7 +172,7 @@ func TestBNI_GetBalance(t *testing.T) {
 		givenConfig.BNIServer = testServer.URL
 
 		bni := New(givenConfig)
-		bni.api.retryablehttpClient.HTTPClient = testServer.Client()
+		bni.api.httpClient = testServer.Client()
 
 		dtoReq := dto.GetBalanceRequest{
 			AccountNo: "115471119",
@@ -237,7 +237,7 @@ func TestBNI_GetBalance(t *testing.T) {
 		givenConfig.BNIServer = testServer.URL
 
 		bni := New(givenConfig)
-		bni.api.retryablehttpClient.HTTPClient = testServer.Client()
+		bni.api.httpClient = testServer.Client()
 
 		dtoReq := dto.GetBalanceRequest{
 			AccountNo: "115471119",
@@ -472,7 +472,7 @@ func buildBNIAndMockServerGoodResponse(t *testing.T, givenConfig config.Config, 
 	givenConfig.BNIServer = testServer.URL
 
 	bni = New(givenConfig)
-	bni.api.retryablehttpClient.HTTPClient = testServer.Client()
+	bni.api.httpClient = testServer.Client()
 
 	return bni, testServer
 }
