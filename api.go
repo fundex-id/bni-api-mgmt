@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
+	"github.com/lithammer/shortuuid"
 	"go.uber.org/zap"
 )
 
@@ -44,12 +45,12 @@ func newApi(config config.Config) *API {
 	return &api
 }
 
-func (api *API) setAccessTokenAndSessID(accessToken, bniSessID string) {
+func (api *API) setAccessToken(accessToken string) {
 	api.mutex.Lock()
 	defer api.mutex.Unlock()
 
 	api.accessToken = accessToken
-	api.bniSessID = bniSessID
+	api.bniSessID = shortuuid.New()
 }
 
 func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {

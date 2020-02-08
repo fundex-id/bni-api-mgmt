@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"sync"
 
 	"github.com/fundex-id/bni-api-mgmt/config"
 	bniCtx "github.com/fundex-id/bni-api-mgmt/context"
@@ -13,7 +12,6 @@ import (
 	"github.com/fundex-id/bni-api-mgmt/signature"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/juju/errors"
-	"github.com/lithammer/shortuuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -25,9 +23,6 @@ type BNI struct {
 	api       *API
 	config    config.Config
 	signature *signature.Signature
-
-	mutex     sync.Mutex
-	bniSessID string
 }
 
 func New(config config.Config) *BNI {
@@ -65,15 +60,6 @@ func New(config config.Config) *BNI {
 	return &bni
 }
 
-func (b *BNI) setAccessToken(accessToken string) {
-	b.mutex.Lock()
-	defer b.mutex.Unlock()
-
-	newSessID := shortuuid.New()
-	b.api.setAccessTokenAndSessID(accessToken, newSessID)
-	b.bniSessID = newSessID
-}
-
 func (b *BNI) retryPolicy(ctx context.Context, resp *http.Response, err error) (bool, error) {
 	// do not retry on context.Canceled or context.DeadlineExceeded
 	if ctx.Err() != nil {
@@ -101,7 +87,7 @@ func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, erro
 		return nil, errors.Trace(err)
 	}
 
-	b.setAccessToken(dtoResp.AccessToken)
+	b.api.setAccessToken(dtoResp.AccessToken)
 
 	b.log(ctx).Info("=== END DO_AUTH ===")
 
@@ -109,7 +95,7 @@ func (b *BNI) DoAuthentication(ctx context.Context) (*dto.GetTokenResponse, erro
 }
 
 func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*dto.GetBalanceResponse, error) {
-	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+	ctx = bniCtx.WithBNISessID(ctx, b.api.bniSessID)
 
 	b.log(ctx).Info("=== GET_BALANCE ===")
 
@@ -143,7 +129,7 @@ func (b *BNI) GetBalance(ctx context.Context, dtoReq *dto.GetBalanceRequest) (*d
 }
 
 func (b *BNI) GetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInquiryRequest) (*dto.GetInHouseInquiryResponse, error) {
-	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+	ctx = bniCtx.WithBNISessID(ctx, b.api.bniSessID)
 
 	b.log(ctx).Info("=== GET_IN_HOUSE_INQUIRY ===")
 
@@ -177,7 +163,7 @@ func (b *BNI) GetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInqui
 }
 
 func (b *BNI) DoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto.DoPaymentResponse, error) {
-	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+	ctx = bniCtx.WithBNISessID(ctx, b.api.bniSessID)
 
 	b.log(ctx).Info("=== DO_PAYMENT ===")
 
@@ -211,7 +197,7 @@ func (b *BNI) DoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto
 }
 
 func (b *BNI) GetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatusRequest) (*dto.GetPaymentStatusResponse, error) {
-	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+	ctx = bniCtx.WithBNISessID(ctx, b.api.bniSessID)
 
 	b.log(ctx).Info("=== GET_PAYMENT_STATUS ===")
 
@@ -245,7 +231,7 @@ func (b *BNI) GetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatus
 }
 
 func (b *BNI) GetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInterBankInquiryRequest) (*dto.GetInterBankInquiryResponse, error) {
-	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+	ctx = bniCtx.WithBNISessID(ctx, b.api.bniSessID)
 
 	b.log(ctx).Info("=== GET_INTER_BANK_INQUIRY ===")
 
@@ -279,7 +265,7 @@ func (b *BNI) GetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInterBankI
 }
 
 func (b *BNI) GetInterBankPayment(ctx context.Context, dtoReq *dto.GetInterBankPaymentRequest) (*dto.GetInterBankPaymentResponse, error) {
-	ctx = bniCtx.WithBNISessID(ctx, b.bniSessID)
+	ctx = bniCtx.WithBNISessID(ctx, b.api.bniSessID)
 
 	b.log(ctx).Info("=== GET_INTER_BANK_PAYMENT ===")
 
@@ -315,7 +301,7 @@ func (b *BNI) GetInterBankPayment(ctx context.Context, dtoReq *dto.GetInterBankP
 // === misc func ===
 
 func (b *BNI) log(ctx context.Context) *zap.SugaredLogger {
-	return logger.Logger(bniCtx.WithBNISessID(ctx, b.bniSessID))
+	return logger.Logger(bniCtx.WithBNISessID(ctx, b.api.bniSessID))
 }
 
 // === Signature of each request ===
