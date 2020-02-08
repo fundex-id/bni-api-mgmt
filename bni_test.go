@@ -3,7 +3,6 @@ package bni
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -46,11 +45,10 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 			assert.Equal(t, "client_credentials", req.Form.Get("grant_type"))
 
-			var dtoResp dto.GetTokenResponse
-			getJSON("testdata/get_token_response.json", &dtoResp)
+			respByte := getJSON("testdata/get_token_response.json")
 
 			w.WriteHeader(http.StatusOK)
-			err = json.NewEncoder(w).Encode(dtoResp)
+			_, err = w.Write(respByte)
 			util.AssertErrNil(t, err)
 
 		}))
@@ -121,11 +119,10 @@ func TestBNI_GetBalance(t *testing.T) {
 
 			assert.Equal(t, "application/json", req.Header.Get("content-type"))
 
-			var dtoResp dto.ApiResponse
-			getJSON("testdata/get_balance_response.json", &dtoResp)
+			respByte := getJSON("testdata/get_balance_response.json")
 
 			w.WriteHeader(http.StatusOK)
-			err := json.NewEncoder(w).Encode(dtoResp)
+			_, err := w.Write(respByte)
 			util.AssertErrNil(t, err)
 
 		}))
@@ -163,11 +160,10 @@ func TestBNI_GetBalance(t *testing.T) {
 
 			assert.Equal(t, "application/json", req.Header.Get("content-type"))
 
-			var dtoResp dto.ApiResponse
-			getJSON("testdata/bad_response.json", &dtoResp)
+			respByte := getJSON("testdata/bad_response.json")
 
 			w.WriteHeader(http.StatusOK)
-			err := json.NewEncoder(w).Encode(dtoResp)
+			_, err := w.Write(respByte)
 			util.AssertErrNil(t, err)
 
 		}))
@@ -214,11 +210,10 @@ func TestBNI_GetBalance(t *testing.T) {
 			if hits == 1 {
 				assert.Equal(t, givenConfig.AuthPath, req.URL.Path)
 
-				var dtoResp dto.GetTokenResponse
-				getJSON("testdata/get_token_response.json", &dtoResp)
+				respByte := getJSON("testdata/get_token_response.json")
 
 				w.WriteHeader(http.StatusOK)
-				err := json.NewEncoder(w).Encode(dtoResp)
+				_, err := w.Write(respByte)
 				util.AssertErrNil(t, err)
 
 				hits++
@@ -226,11 +221,10 @@ func TestBNI_GetBalance(t *testing.T) {
 			}
 
 			if hits == 2 {
-				var dtoResp dto.ApiResponse
-				getJSON("testdata/get_balance_response.json", &dtoResp)
+				respByte := getJSON("testdata/get_balance_response.json")
 
 				w.WriteHeader(http.StatusOK)
-				err := json.NewEncoder(w).Encode(dtoResp)
+				_, err := w.Write(respByte)
 				util.AssertErrNil(t, err)
 				hits = 0
 			}
@@ -432,7 +426,7 @@ func basicAuth(username, password string) string {
 	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
-func getJSON(filePath string, obj interface{}) {
+func getJSON(filePath string) []byte {
 	absPath, err := filepath.Abs(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -448,15 +442,12 @@ func getJSON(filePath string, obj interface{}) {
 		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(byteValue, &obj)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	err = file.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return byteValue
 }
 
 func buildBNIAndMockServerGoodResponse(t *testing.T, givenConfig config.Config, assertPath string, jsonPathTestData string) (bni *BNI, testServer *httptest.Server) {
@@ -468,11 +459,10 @@ func buildBNIAndMockServerGoodResponse(t *testing.T, givenConfig config.Config, 
 
 		assert.Equal(t, "application/json", req.Header.Get("content-type"))
 
-		var dtoResp dto.ApiResponse
-		getJSON(jsonPathTestData, &dtoResp)
+		respByte := getJSON(jsonPathTestData)
 
 		w.WriteHeader(http.StatusOK)
-		err := json.NewEncoder(w).Encode(dtoResp)
+		_, err := w.Write(respByte)
 		util.AssertErrNil(t, err)
 
 	}))
