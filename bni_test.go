@@ -27,7 +27,6 @@ var dummySignatureConfig config.SignatureConfig = config.SignatureConfig{
 func TestBNI_DoAuthentication(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
-			AuthPath: "/oauth",
 			Username: "dummyusername",
 			Password: "dummypassword",
 			LogPath:  testLogPath,
@@ -35,7 +34,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			assert.Equal(t, http.MethodPost, req.Method)
-			assert.Equal(t, givenConfig.AuthPath, req.URL.Path)
+			assert.Equal(t, AuthPath, req.URL.Path)
 
 			assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("content-type"))
 			assert.Equal(t, "Basic "+basicAuth(givenConfig.Username, givenConfig.Password), req.Header.Get("authorization"))
@@ -72,7 +71,6 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 	t.Run("bad auth", func(t *testing.T) {
 		givenConfig := config.Config{
-			AuthPath: "/oauth",
 			Username: "dummyusername",
 			Password: "dummypassword",
 			LogPath:  testLogPath,
@@ -80,7 +78,7 @@ func TestBNI_DoAuthentication(t *testing.T) {
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			assert.Equal(t, http.MethodPost, req.Method)
-			assert.Equal(t, givenConfig.AuthPath, req.URL.Path)
+			assert.Equal(t, AuthPath, req.URL.Path)
 
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
@@ -105,8 +103,6 @@ func TestBNI_DoAuthentication(t *testing.T) {
 func TestBNI_GetBalance(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
-			AuthPath:        "/oauth",
-			BalancePath:     "/H2H/getbalance",
 			Username:        "dummyusername",
 			Password:        "dummypassword",
 			LogPath:         testLogPath,
@@ -115,7 +111,7 @@ func TestBNI_GetBalance(t *testing.T) {
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			assert.Equal(t, http.MethodPost, req.Method)
-			assert.Equal(t, givenConfig.BalancePath, req.URL.Path)
+			assert.Equal(t, BalancePath, req.URL.Path)
 
 			assert.Equal(t, "application/json", req.Header.Get("content-type"))
 
@@ -146,8 +142,6 @@ func TestBNI_GetBalance(t *testing.T) {
 
 	t.Run("bad response", func(t *testing.T) {
 		givenConfig := config.Config{
-			AuthPath:        "/oauth",
-			BalancePath:     "/H2H/getbalance",
 			Username:        "dummyusername",
 			Password:        "dummypassword",
 			LogPath:         testLogPath,
@@ -156,7 +150,7 @@ func TestBNI_GetBalance(t *testing.T) {
 
 		testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			assert.Equal(t, http.MethodPost, req.Method)
-			assert.Equal(t, givenConfig.BalancePath, req.URL.Path)
+			assert.Equal(t, BalancePath, req.URL.Path)
 
 			assert.Equal(t, "application/json", req.Header.Get("content-type"))
 
@@ -187,8 +181,6 @@ func TestBNI_GetBalance(t *testing.T) {
 
 	t.Run("no auth then good response", func(t *testing.T) {
 		givenConfig := config.Config{
-			AuthPath:        "/oauth",
-			BalancePath:     "/H2H/getbalance",
 			Username:        "dummyusername",
 			Password:        "dummypassword",
 			LogPath:         testLogPath,
@@ -201,14 +193,14 @@ func TestBNI_GetBalance(t *testing.T) {
 			assert.Equal(t, http.MethodPost, req.Method)
 
 			if hits == 0 {
-				assert.Equal(t, givenConfig.BalancePath, req.URL.Path)
+				assert.Equal(t, BalancePath, req.URL.Path)
 				w.WriteHeader(http.StatusUnauthorized)
 				hits++
 				return
 			}
 
 			if hits == 1 {
-				assert.Equal(t, givenConfig.AuthPath, req.URL.Path)
+				assert.Equal(t, AuthPath, req.URL.Path)
 
 				respByte := getJSON("testdata/get_token_response.json")
 
@@ -268,13 +260,12 @@ func TestBNI_GetBalance(t *testing.T) {
 func TestBNI_GetInHouseInquiry(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
-			InHouseInquiryPath: "/H2H/getinhouseinquiry",
-			LogPath:            testLogPath,
-			SignatureConfig:    dummySignatureConfig,
+			LogPath:         testLogPath,
+			SignatureConfig: dummySignatureConfig,
 		}
 
 		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
-			givenConfig.InHouseInquiryPath,
+			InHouseInquiryPath,
 			"testdata/get_inhouseinquiry_response.json",
 		)
 
@@ -295,13 +286,12 @@ func TestBNI_GetInHouseInquiry(t *testing.T) {
 func TestBNI_DoPayment(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
-			InHouseTransferPath: "/H2H/dopayment",
-			LogPath:             testLogPath,
-			SignatureConfig:     dummySignatureConfig,
+			LogPath:         testLogPath,
+			SignatureConfig: dummySignatureConfig,
 		}
 
 		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
-			givenConfig.InHouseTransferPath,
+			InHouseTransferPath,
 			"testdata/get_dopayment_response.json",
 		)
 
@@ -335,13 +325,12 @@ func TestBNI_DoPayment(t *testing.T) {
 func TestBNI_GetPaymentStatus(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
-			PaymentStatusPath: "/H2H/getpaymentstatus",
-			LogPath:           testLogPath,
-			SignatureConfig:   dummySignatureConfig,
+			LogPath:         testLogPath,
+			SignatureConfig: dummySignatureConfig,
 		}
 
 		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
-			givenConfig.PaymentStatusPath,
+			PaymentStatusPath,
 			"testdata/get_getpaymentstatus_response.json",
 		)
 
@@ -362,13 +351,12 @@ func TestBNI_GetPaymentStatus(t *testing.T) {
 func TestBNI_GetInterBankInquiry(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
-			InterBankInquiryPath: "/H2H/getinterbankinquiry",
-			LogPath:              testLogPath,
-			SignatureConfig:      dummySignatureConfig,
+			LogPath:         testLogPath,
+			SignatureConfig: dummySignatureConfig,
 		}
 
 		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
-			givenConfig.InterBankInquiryPath,
+			InterBankInquiryPath,
 			"testdata/get_getinterbankinquiry_response.json",
 		)
 
@@ -392,13 +380,12 @@ func TestBNI_GetInterBankInquiry(t *testing.T) {
 func TestBNI_GetInterBankPayment(t *testing.T) {
 	t.Run("good case", func(t *testing.T) {
 		givenConfig := config.Config{
-			InterBankTransferPath: "/H2H/getinterbankpayment",
-			LogPath:               testLogPath,
-			SignatureConfig:       dummySignatureConfig,
+			LogPath:         testLogPath,
+			SignatureConfig: dummySignatureConfig,
 		}
 
 		bni, testServer := buildBNIAndMockServerGoodResponse(t, givenConfig,
-			givenConfig.InterBankTransferPath,
+			InterBankTransferPath,
 			"testdata/get_getinterbankpayment_response.json",
 		)
 

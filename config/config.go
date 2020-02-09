@@ -1,18 +1,11 @@
 package config
 
 type Config struct {
-	Username              string
-	Password              string
-	ClientID              string
-	BNIServer             string
-	AuthPath              string
-	BalancePath           string
-	InHouseInquiryPath    string
-	InterBankInquiryPath  string
-	PaymentStatusPath     string
-	InHouseTransferPath   string
-	InterBankTransferPath string
-	LogPath               string
+	Username  string
+	Password  string
+	ClientID  string
+	BNIServer string
+	LogPath   string
 	SignatureConfig
 }
 

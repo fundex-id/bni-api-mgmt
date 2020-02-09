@@ -24,6 +24,16 @@ import (
 
 var ErrUnauthorized = errors.New("Err StatusUnauthorized")
 
+const (
+	AuthPath              string = "/api/oauth/token"
+	BalancePath           string = "/H2H/getbalance"
+	InHouseInquiryPath    string = "/H2H/getinhouseinquiry"
+	InterBankInquiryPath  string = "/H2H/getinterbankinquiry"
+	PaymentStatusPath     string = "/H2H/getpaymentstatus"
+	InHouseTransferPath   string = "/H2H/dopayment"
+	InterBankTransferPath string = "/H2H/getinterbankpayment"
+)
+
 type API struct {
 	config     config.Config
 	httpClient *http.Client // for postGetToken only
@@ -51,7 +61,7 @@ func (api *API) setAccessToken(accessToken string) {
 }
 
 func (api *API) postGetToken(ctx context.Context) (*dto.GetTokenResponse, error) {
-	urlTarget, err := buildURL(api.config.BNIServer, api.config.AuthPath, url.Values{})
+	urlTarget, err := buildURL(api.config.BNIServer, AuthPath, url.Values{})
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -109,7 +119,7 @@ func (api *API) postGetBalance(ctx context.Context, dtoReq *dto.GetBalanceReques
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPIWithRetry(ctx, api.config.BalancePath, jsonReq)
+	return api.postToAPIWithRetry(ctx, BalancePath, jsonReq)
 }
 
 func (api *API) postGetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHouseInquiryRequest) (*dto.ApiResponse, error) {
@@ -118,7 +128,7 @@ func (api *API) postGetInHouseInquiry(ctx context.Context, dtoReq *dto.GetInHous
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPIWithRetry(ctx, api.config.InHouseInquiryPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, InHouseInquiryPath, jsonReq)
 }
 
 func (api *API) postDoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest) (*dto.ApiResponse, error) {
@@ -127,7 +137,7 @@ func (api *API) postDoPayment(ctx context.Context, dtoReq *dto.DoPaymentRequest)
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPIWithRetry(ctx, api.config.InHouseTransferPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, InHouseTransferPath, jsonReq)
 }
 
 func (api *API) postGetPaymentStatus(ctx context.Context, dtoReq *dto.GetPaymentStatusRequest) (*dto.ApiResponse, error) {
@@ -136,7 +146,7 @@ func (api *API) postGetPaymentStatus(ctx context.Context, dtoReq *dto.GetPayment
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPIWithRetry(ctx, api.config.PaymentStatusPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, PaymentStatusPath, jsonReq)
 }
 
 func (api *API) postGetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInterBankInquiryRequest) (*dto.ApiResponse, error) {
@@ -145,7 +155,7 @@ func (api *API) postGetInterBankInquiry(ctx context.Context, dtoReq *dto.GetInte
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPIWithRetry(ctx, api.config.InterBankInquiryPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, InterBankInquiryPath, jsonReq)
 }
 
 func (api *API) postGetInterBankPayment(ctx context.Context, dtoReq *dto.GetInterBankPaymentRequest) (*dto.ApiResponse, error) {
@@ -154,7 +164,7 @@ func (api *API) postGetInterBankPayment(ctx context.Context, dtoReq *dto.GetInte
 		return nil, errors.Trace(err)
 	}
 
-	return api.postToAPIWithRetry(ctx, api.config.InterBankTransferPath, jsonReq)
+	return api.postToAPIWithRetry(ctx, InterBankTransferPath, jsonReq)
 }
 
 // Generic POST request to API
