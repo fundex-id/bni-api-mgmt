@@ -213,6 +213,7 @@ func TestBNI_GetBalance(t *testing.T) {
 			}
 
 			if hits == 2 {
+				assert.Equal(t, BalancePath, req.URL.Path)
 				assert.NotEmpty(t, req.URL.Query().Get("access_token"))
 
 				respByte := getJSON("testdata/get_balance_response.json")
